@@ -1,0 +1,2797 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Interno — IntraConnect</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #1a56db;
+  --primary-light: #eff6ff;
+  --sidebar-bg: #111827;
+  --sidebar-hover: #1f2937;
+  --sidebar-active: #1a56db;
+  --sidebar-text: #9ca3af;
+  --bg: #f3f4f6;
+  --card: #ffffff;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --green: #059669;
+  --green-bg: #ecfdf5;
+  --orange: #d97706;
+  --orange-bg: #fffbeb;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --blue-bg: #eff6ff;
+  --purple: #7c3aed;
+  --topbar-bg: #ffffff;
+}
+
+/* ── DARK MODE ── */
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --topbar-bg: #1e293b;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border: #334155;
+  --blue-bg: #1e3a5f;
+  --green-bg: #052e16;
+  --orange-bg: #431407;
+  --red-bg: #450a0a;
+  --primary-light: #1e3a5f;
+  --sidebar-bg: #0a0f1a;
+  --sidebar-hover: #111827;
+}
+[data-theme="dark"] .topbar { background: var(--topbar-bg); }
+[data-theme="dark"] .topbar-btn { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .topbar-btn svg { stroke: var(--text-muted); }
+[data-theme="dark"] .search { background: #0f172a; border-color: var(--border); }
+[data-theme="dark"] .search input { color: var(--text); }
+[data-theme="dark"] .org-connector::before { background: var(--border); }
+[data-theme="dark"] .flip-front { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .flip-front .ob-role { color: var(--text-muted); }
+[data-theme="dark"] .days-today { background: #451a03; color: #fbbf24; }
+[data-theme="dark"] .days-soon { background: #052e16; color: #34d399; }
+[data-theme="dark"] .pill-today { background: #451a03; color: #fbbf24; }
+[data-theme="dark"] .pill-soon { background: #052e16; color: #34d399; }
+[data-theme="dark"] .tag-rh { background: #4a044e; color: #f0abfc; }
+[data-theme="dark"] .tag-ti { background: #2e1065; color: #c4b5fd; }
+[data-theme="dark"] .tag-dir { background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .tag-mkt { background: #052e16; color: #6ee7b7; }
+[data-theme="dark"] .tag-adm { background: #431407; color: #fdba74; }
+[data-theme="dark"] .filter-btn { background: var(--card); border-color: var(--border); color: var(--text-muted); }
+[data-theme="dark"] .area-card { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .pinned-icon { background: #1e3a5f; }
+[data-theme="dark"] .metric-card { background: var(--card); }
+[data-theme="dark"] .prio-alta { background: #450a0a; color: #fca5a5; }
+[data-theme="dark"] .prio-media { background: #431407; color: #fcd34d; }
+[data-theme="dark"] .prio-baixa { background: #052e16; color: #6ee7b7; }
+[data-theme="dark"] .badge-new { background: #1a56db; }
+[data-theme="dark"] .dept-ti { background: #2e1065; color: #c4b5fd; }
+[data-theme="dark"] .dept-comercial { background: #052e16; color: #6ee7b7; }
+[data-theme="dark"] .dept-rh { background: #4a044e; color: #f0abfc; }
+[data-theme="dark"] .dept-financeiro { background: #431407; color: #fcd34d; }
+[data-theme="dark"] .dept-marketing { background: #1e3a5f; color: #93c5fd; }
+
+/* ── FLIP CARDS (Organograma) ── */
+.flip-card {
+  perspective: 900px;
+  width: 150px; height: 140px; flex-shrink: 0;
+}
+.flip-card.ceo { width: 170px; height: 140px; }
+.flip-inner {
+  position: relative; width: 100%; height: 100%;
+  transition: transform 0.55s cubic-bezier(0.4,0.2,0.2,1);
+  transform-style: preserve-3d;
+}
+.flip-card:hover .flip-inner { transform: rotateY(180deg); }
+.flip-front, .flip-back {
+  position: absolute; inset: 0;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: 10px; border: 1.5px solid var(--border);
+}
+.flip-front {
+  background: var(--card);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 6px; padding: 14px 10px; text-align: center;
+}
+.flip-front.is-ceo { border-color: var(--primary); background: var(--blue-bg); }
+.flip-back {
+  background: linear-gradient(135deg, var(--primary), #1e40af);
+  transform: rotateY(180deg);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 12px; text-align: center; gap: 6px;
+  color: #fff;
+}
+.flip-back.green-back { background: linear-gradient(135deg,#059669,#047857); }
+.flip-back.purple-back { background: linear-gradient(135deg,#7c3aed,#6d28d9); }
+.flip-back.orange-back { background: linear-gradient(135deg,#d97706,#b45309); }
+.flip-back.teal-back { background: linear-gradient(135deg,#0891b2,#0e7490); }
+.flip-back.pink-back { background: linear-gradient(135deg,#db2777,#be185d); }
+.flip-back.dark-back { background: linear-gradient(135deg,#374151,#1f2937); }
+.flip-back-title { font-size: 11px; font-weight: 800; letter-spacing: 0.3px; line-height: 1.2; }
+.flip-back-text { font-size: 10px; opacity: 0.85; line-height: 1.45; }
+.flip-back-contact { font-size: 10px; opacity: 0.7; margin-top: 2px; }
+.ob-av { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; }
+.ob-name { font-size: 12px; font-weight: 700; color: var(--text); }
+.ob-role { font-size: 10px; color: var(--text-muted); }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--text);
+  display: flex; height: 100vh; overflow: hidden;
+  font-size: 14px;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 230px; background: var(--sidebar-bg);
+  display: flex; flex-direction: column;
+  flex-shrink: 0; height: 100vh; overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid #1f2937;
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-mark {
+  width: 32px; height: 32px; background: var(--primary);
+  border-radius: 6px; display: flex; align-items: center; justify-content: center;
+}
+.logo-mark svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; }
+.logo-name { color: #fff; font-weight: 700; font-size: 15px; letter-spacing: -0.3px; }
+.logo-tagline { color: var(--sidebar-text); font-size: 10px; margin-top: 1px; }
+
+.sidebar-user {
+  padding: 14px 20px;
+  border-bottom: 1px solid #1f2937;
+  display: flex; align-items: center; gap: 10px;
+}
+.avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+.user-name { color: #f9fafb; font-size: 13px; font-weight: 600; }
+.user-dept { color: var(--sidebar-text); font-size: 11px; margin-top: 1px; }
+.online-badge {
+  margin-left: auto; display: flex; align-items: center; gap: 5px;
+  font-size: 10px; color: #34d399;
+}
+.online-badge::before {
+  content: ''; width: 7px; height: 7px;
+  background: #34d399; border-radius: 50%; display: block;
+}
+
+.nav-section { padding: 18px 12px 6px; }
+.nav-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+  text-transform: uppercase; color: #4b5563;
+  padding: 0 8px; margin-bottom: 4px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 6px;
+  color: var(--sidebar-text); cursor: pointer;
+  margin-bottom: 1px; transition: all 0.12s;
+  font-size: 13px; font-weight: 500; user-select: none;
+  position: relative;
+}
+.nav-item:hover { background: var(--sidebar-hover); color: #e5e7eb; }
+.nav-item.active { background: var(--sidebar-active); color: #fff; }
+.nav-item.active .nav-ico svg { stroke: #fff; }
+.nav-ico { width: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.nav-ico svg { width: 16px; height: 16px; fill: none; stroke: var(--sidebar-text); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nav-item:hover .nav-ico svg { stroke: #e5e7eb; }
+.nav-item.active .nav-ico svg { stroke: #fff; }
+.nav-badge {
+  margin-left: auto; background: var(--red); color: #fff;
+  font-size: 10px; font-weight: 700; padding: 1px 6px;
+  border-radius: 20px; min-width: 18px; text-align: center;
+}
+.nav-badge.neutral { background: #374151; }
+
+.sidebar-footer {
+  margin-top: auto; padding: 12px;
+  border-top: 1px solid #1f2937;
+}
+
+/* ── MAIN ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+.topbar {
+  background: var(--card); border-bottom: 1px solid var(--border);
+  height: 58px; padding: 0 24px;
+  display: flex; align-items: center; gap: 14px; flex-shrink: 0;
+}
+.topbar-title { font-size: 16px; font-weight: 700; flex: 1; color: var(--text); }
+.search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 7px; padding: 6px 12px; width: 220px;
+}
+.search svg { width: 14px; height: 14px; fill: none; stroke: var(--text-muted); stroke-width: 2; stroke-linecap: round; flex-shrink: 0; }
+.search input { border: none; background: transparent; outline: none; font-size: 13px; color: var(--text); width: 100%; }
+.topbar-btn {
+  width: 34px; height: 34px; border-radius: 7px; border: 1px solid var(--border);
+  background: var(--card); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.12s; position: relative;
+}
+.topbar-btn:hover { background: var(--bg); }
+.topbar-btn svg { width: 16px; height: 16px; fill: none; stroke: var(--text-muted); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.notif-dot {
+  position: absolute; top: 5px; right: 5px; width: 7px; height: 7px;
+  background: var(--red); border-radius: 50%; border: 2px solid white;
+}
+.topbar-avatar { cursor: pointer; }
+
+.content { flex: 1; overflow-y: auto; padding: 24px 28px 24px 32px; }
+
+/* ── PAGES ── */
+.page { display: none; }
+.page.active { display: block; }
+
+.page-header { margin-bottom: 22px; }
+.page-header h1 { font-size: 20px; font-weight: 800; color: var(--text); }
+.page-header p { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden;
+}
+.card-head {
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-head-title { font-size: 13px; font-weight: 700; }
+.card-link { font-size: 12px; color: var(--primary); cursor: pointer; font-weight: 600; }
+.card-body { padding: 0 18px; }
+.card-body.padded { padding: 16px 18px; }
+
+/* ── LAYOUT GRIDS ── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.g31 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+/* ── FEED ── */
+.feed-post {
+  padding: 16px 0; border-bottom: 1px solid var(--border);
+  display: flex; gap: 12px;
+}
+.feed-post:last-child { border-bottom: none; }
+.post-avatar {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+}
+.post-body { flex: 1; min-width: 0; }
+.post-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+.post-name { font-size: 13px; font-weight: 700; }
+.post-dept { font-size: 11px; color: var(--text-muted); }
+.post-tag {
+  font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: 0.3px;
+}
+.tag-rh { background: #fce7f3; color: #9d174d; }
+.tag-ti { background: #ede9fe; color: #5b21b6; }
+.tag-dir { background: #dbeafe; color: #1e40af; }
+.tag-mkt { background: #d1fae5; color: #065f46; }
+.tag-adm { background: #fef3c7; color: #92400e; }
+.post-text { font-size: 13px; color: var(--text); line-height: 1.55; margin-bottom: 8px; }
+.post-actions { display: flex; gap: 16px; }
+.post-action-btn {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: var(--text-muted); cursor: pointer; transition: color 0.12s;
+}
+.post-action-btn:hover { color: var(--primary); }
+.post-action-btn svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.post-time { font-size: 11px; color: #9ca3af; }
+
+/* ── RH MENSAGENS ── */
+.msg-item {
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.msg-item:last-child { border-bottom: none; }
+.msg-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.msg-icon svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.msg-icon.blue { background: var(--blue-bg); color: var(--primary); }
+.msg-icon.green { background: var(--green-bg); color: var(--green); }
+.msg-icon.orange { background: var(--orange-bg); color: var(--orange); }
+.msg-icon.red { background: var(--red-bg); color: var(--red); }
+.msg-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.msg-body { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.msg-date { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+.msg-badge { margin-left: auto; flex-shrink: 0; }
+.badge-new {
+  font-size: 10px; font-weight: 700; background: var(--primary);
+  color: #fff; padding: 1px 7px; border-radius: 20px;
+}
+
+/* ── AREAS ── */
+.areas-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+}
+.area-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 20px; cursor: pointer; transition: all 0.15s;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.area-card:hover { border-color: var(--primary); box-shadow: 0 2px 10px rgba(26,86,219,0.08); }
+.area-icon {
+  width: 40px; height: 40px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.area-icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.area-icon.blue { background: var(--blue-bg); color: var(--primary); }
+.area-icon.green { background: var(--green-bg); color: var(--green); }
+.area-icon.orange { background: var(--orange-bg); color: var(--orange); }
+.area-icon.red { background: var(--red-bg); color: var(--red); }
+.area-icon.purple { background: #ede9fe; color: var(--purple); }
+.area-icon.gray { background: #f3f4f6; color: #374151; }
+.area-name { font-size: 14px; font-weight: 700; }
+.area-head { font-size: 12px; color: var(--text-muted); }
+.area-members {
+  display: flex; align-items: center; margin-top: 4px;
+}
+.area-members .sm-av {
+  width: 24px; height: 24px; border-radius: 50%; font-size: 9px; font-weight: 700;
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  margin-right: -5px; border: 2px solid white;
+}
+.area-members .sm-count {
+  margin-left: 10px; font-size: 11px; color: var(--text-muted);
+}
+
+/* ── CALENDARIO ── */
+.cal-grid {
+  display: grid; grid-template-columns: 1fr 340px; gap: 16px;
+}
+.cal-month { }
+.cal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; padding: 0 2px;
+}
+.cal-month-title { font-size: 16px; font-weight: 700; }
+.cal-nav { display: flex; gap: 4px; }
+.cal-nav-btn {
+  width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--card); cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.cal-nav-btn svg { width: 14px; height: 14px; fill: none; stroke: var(--text-muted); stroke-width: 2; stroke-linecap: round; }
+.cal-days-header {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 4px;
+}
+.cal-day-name { text-align: center; font-size: 11px; font-weight: 700; color: var(--text-muted); padding: 4px 0; }
+.cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-day {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; border-radius: 7px; cursor: pointer; transition: all 0.1s;
+  position: relative;
+}
+.cal-day:hover { background: var(--bg); }
+.cal-day.other-month { color: #d1d5db; }
+.cal-day.today { background: var(--primary); color: #fff; font-weight: 700; }
+.cal-day.has-event::after {
+  content: ''; width: 5px; height: 5px; background: var(--primary);
+  border-radius: 50%; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
+}
+.cal-day.today::after { background: #fff; }
+
+.event-list { }
+.event-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.event-item:last-child { border-bottom: none; }
+.event-date-box {
+  width: 42px; text-align: center; flex-shrink: 0;
+  background: var(--bg); border-radius: 8px; padding: 6px 4px;
+}
+.event-day { font-size: 18px; font-weight: 800; color: var(--primary); line-height: 1; }
+.event-mon { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+.event-info { flex: 1; min-width: 0; }
+.event-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.event-desc { font-size: 12px; color: var(--text-muted); }
+.event-time { font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+.event-time svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.event-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.ev-blue { background: var(--primary); }
+.ev-green { background: var(--green); }
+.ev-orange { background: var(--orange); }
+.ev-red { background: var(--red); }
+.ev-purple { background: var(--purple); }
+
+/* ── ORGANOGRAMA ── */
+.org-wrap { overflow-x: auto; padding: 20px 0; }
+.org-tree {
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  min-width: 700px;
+}
+.org-level { display: flex; justify-content: center; gap: 24px; position: relative; }
+.org-level + .org-level { margin-top: 0; }
+.org-box {
+  background: var(--card); border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 12px 16px; text-align: center; min-width: 140px; max-width: 160px;
+  cursor: pointer; transition: all 0.15s; position: relative;
+}
+.org-box:hover { border-color: var(--primary); box-shadow: 0 2px 8px rgba(26,86,219,0.1); }
+.org-box.top-level { border-color: var(--primary); background: var(--blue-bg); }
+.org-box .ob-av {
+  width: 36px; height: 36px; border-radius: 50%; margin: 0 auto 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+}
+.org-box .ob-name { font-size: 12px; font-weight: 700; }
+.org-box .ob-role { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
+/* vertical connector */
+.org-connector { display: flex; justify-content: center; }
+.org-connector::before { content: ''; width: 1.5px; height: 28px; background: var(--border); display: block; }
+
+/* horizontal connector bar */
+.org-hbar {
+  display: flex; justify-content: center;
+  position: relative; height: 1px; margin-bottom: 28px;
+}
+.org-hbar::before {
+  content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  height: 1.5px; background: var(--border); width: calc(100% - 140px);
+}
+.org-hbar .hb-drop {
+  position: absolute; top: 0; width: 1.5px; height: 28px;
+  background: var(--border);
+}
+
+/* ── CHAMADOS TI ── */
+.chamados-filters {
+  display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  border: 1.5px solid var(--border); background: var(--card); cursor: pointer;
+  color: var(--text-muted); transition: all 0.12s;
+}
+.filter-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.filter-btn:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+
+.chamado-item {
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 14px; transition: background 0.1s;
+  cursor: pointer;
+}
+.chamado-item:last-child { border-bottom: none; }
+.chamado-item:hover { background: var(--bg); }
+.ch-id { font-size: 11px; font-weight: 700; color: var(--text-muted); width: 52px; flex-shrink: 0; }
+.ch-info { flex: 1; min-width: 0; }
+.ch-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-sub { font-size: 11px; color: var(--text-muted); }
+.ch-prio { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; }
+.prio-alta { background: #fee2e2; color: #b91c1c; }
+.prio-media { background: #fef3c7; color: #b45309; }
+.prio-baixa { background: #d1fae5; color: #047857; }
+.ch-status { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 5px; flex-shrink: 0; min-width: 90px; }
+.ch-status .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.st-open .dot { background: var(--primary); }
+.st-prog .dot { background: var(--orange); }
+.st-done .dot { background: var(--green); }
+.st-open { color: var(--primary); }
+.st-prog { color: var(--orange); }
+.st-done { color: var(--green); }
+.ch-date { font-size: 11px; color: var(--text-muted); flex-shrink: 0; width: 70px; text-align: right; }
+
+.new-chamado-btn {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--primary); color: #fff; border: none;
+  border-radius: 7px; padding: 7px 14px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background 0.12s;
+}
+.new-chamado-btn:hover { background: #1e40af; }
+.new-chamado-btn svg { width: 14px; height: 14px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; }
+
+/* ── METRICS ROW ── */
+.metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.metric-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 18px 20px; display: flex; flex-direction: column; gap: 6px;
+}
+.metric-icon-box {
+  width: 36px; height: 36px; border-radius: 8px; margin-bottom: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.metric-icon-box svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.metric-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.metric-value { font-size: 26px; font-weight: 800; color: var(--text); }
+.metric-delta { font-size: 11px; font-weight: 600; }
+.delta-up { color: var(--green); }
+.delta-down { color: var(--red); }
+.delta-neutral { color: var(--text-muted); }
+
+/* ── SCROLL ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
+
+/* ── PINNED / LINKS ── */
+.pinned-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--border); cursor: pointer;
+}
+.pinned-item:last-child { border-bottom: none; }
+.pinned-item:hover .pinned-title { color: var(--primary); }
+.pinned-icon { width: 28px; height: 28px; border-radius: 6px; background: var(--blue-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pinned-icon svg { width: 14px; height: 14px; fill: none; stroke: var(--primary); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pinned-title { font-size: 12px; font-weight: 600; color: var(--text); }
+.pinned-date { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+
+/* ── ANIVERSARIOS SIDEBAR ── */
+.bday-item {
+  display: flex; align-items: center; gap: 10px; padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+.bday-item:last-child { border-bottom: none; }
+.bday-name { font-size: 13px; font-weight: 600; }
+.bday-dept { font-size: 11px; color: var(--text-muted); }
+.bday-pill {
+  margin-left: auto; font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px; flex-shrink: 0;
+}
+.pill-today { background: #fef3c7; color: #92400e; }
+.pill-soon { background: #d1fae5; color: #047857; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center; padding: 60px 24px; color: var(--text-muted);
+}
+.empty-state svg { width: 48px; height: 48px; fill: none; stroke: #d1d5db; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; margin: 0 auto 12px; display: block; }
+.empty-state h3 { font-size: 15px; font-weight: 700; color: #6b7280; margin-bottom: 4px; }
+.empty-state p { font-size: 13px; }
+
+/* DIVISOR LABEL */
+.section-divider {
+  font-size: 11px; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  margin: 18px 0 10px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── ANIVERSARIANTES PAGE ── */
+.people-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;
+}
+.person-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px 16px; text-align: center;
+  transition: box-shadow .2s, transform .15s;
+}
+.person-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); transform: translateY(-2px); }
+.person-card .avatar { width: 50px; height: 50px; font-size: 16px; margin: 0 auto 10px; }
+.person-card .pc-name { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.person-card .pc-dept { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+.person-card .pc-date { font-size: 11px; font-weight: 600; color: var(--primary); }
+.person-card .pc-tag {
+  display: inline-block; font-size: 10px; font-weight: 700;
+  padding: 2px 9px; border-radius: 20px; margin-top: 6px;
+}
+.new-employee-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 16px; display: flex; align-items: center; gap: 14px;
+}
+.new-employee-card .avatar { width: 44px; height: 44px; font-size: 15px; flex-shrink: 0; }
+.nec-name { font-size: 13px; font-weight: 700; }
+.nec-role { font-size: 11px; color: var(--text-muted); }
+.nec-date { font-size: 10px; color: var(--green); font-weight: 600; margin-top: 4px; }
+.welcome-badge {
+  margin-left: auto; flex-shrink: 0; font-size: 10px; font-weight: 700;
+  background: var(--green-bg); color: var(--green);
+  padding: 3px 10px; border-radius: 20px;
+}
+
+/* ── LINKS RAPIDOS PAGE ── */
+.links-section-title {
+  font-size: 11px; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .08em;
+  margin-bottom: 12px; margin-top: 24px;
+}
+.links-section-title:first-child { margin-top: 0; }
+.links-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px;
+  margin-bottom: 6px;
+}
+.link-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 14px; display: flex; align-items: center; gap: 12px;
+  cursor: pointer; text-decoration: none; color: var(--text);
+  transition: border-color .2s, box-shadow .2s, transform .15s;
+}
+.link-card:hover { border-color: var(--primary); box-shadow: 0 3px 12px rgba(26,86,219,.1); transform: translateY(-1px); }
+.link-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.link-icon svg { width: 18px; height: 18px; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.link-name { font-size: 12px; font-weight: 600; line-height: 1.3; }
+.link-desc { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── BASE DE CONHECIMENTO ── */
+.wiki-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; }
+.wiki-nav { position: sticky; top: 20px; }
+.wiki-nav-item {
+  padding: 8px 12px; border-radius: 7px; font-size: 13px; font-weight: 500;
+  cursor: pointer; color: var(--text-muted); transition: background .15s, color .15s;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 2px;
+}
+.wiki-nav-item svg { width: 14px; height: 14px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.wiki-nav-item:hover, .wiki-nav-item.active { background: var(--primary-light); color: var(--primary); }
+.wiki-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 0; overflow: hidden; margin-bottom: 14px;
+}
+.wiki-card-header {
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.wiki-cat-icon {
+  width: 32px; height: 32px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.wiki-cat-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.wiki-cat-title { font-size: 13px; font-weight: 700; }
+.wiki-cat-count { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+.wiki-article {
+  padding: 12px 18px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px; cursor: pointer;
+  transition: background .12s;
+}
+.wiki-article:last-child { border-bottom: none; }
+.wiki-article:hover { background: var(--bg); }
+.wiki-article-title { font-size: 13px; font-weight: 500; flex: 1; }
+.wiki-article-meta { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.wiki-article-tag {
+  font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* ── INDICADORES ── */
+.kpi-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px;
+  margin-bottom: 24px;
+}
+.kpi-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+}
+.kpi-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+.kpi-value { font-size: 2rem; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+.kpi-change { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+.kpi-change.up { color: var(--green); }
+.kpi-change.down { color: var(--red); }
+.kpi-change.neutral { color: var(--text-muted); }
+.kpi-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.bar-chart { margin-bottom: 24px; }
+.bar-chart-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+.bar-row { margin-bottom: 12px; }
+.bar-row-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.bar-row-label { font-size: 12px; font-weight: 500; }
+.bar-row-val { font-size: 12px; font-weight: 700; color: var(--primary); }
+.bar-track { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 99px; transition: width .6s ease; }
+.kpi-disclaimer {
+  font-size: 11px; color: var(--text-muted); padding: 12px 16px;
+  background: var(--blue-bg); border-radius: 8px; border-left: 3px solid var(--primary);
+  margin-bottom: 20px;
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </div>
+    <div>
+      <div class="logo-name">IntraConnect</div>
+      <div class="logo-tagline">Portal Corporativo</div>
+    </div>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="avatar">BM</div>
+    <div>
+      <div class="user-name">Bruno Macedo</div>
+      <div class="user-dept">Comercial</div>
+    </div>
+    <div class="online-badge">Online</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Principal</div>
+    <div class="nav-item active" onclick="showPage('home', this)">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+      Início
+    </div>
+    <div class="nav-item" onclick="showPage('feed', this)">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16"/><path d="M6 2v20"/><path d="M14 10H12"/><path d="M14 14H12"/><path d="M14 18H12"/></svg></span>
+      Feed de Notícias
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="showPage('rh', this)">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>
+      Mensagens RH
+      <span class="nav-badge">2</span>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Empresa</div>
+    <div class="nav-item" onclick="showPage('areas', this)">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span>
+      Areas da Empresa
+    </div>
+    <div class="nav-item" onclick="showPage('calendario', this)">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+      Calendario de Eventos
+    </div>
+    <div class="nav-item" onclick="showPage('organograma', this)">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><rect x="10" y="2" width="4" height="4" rx="1"/><rect x="2" y="18" width="4" height="4" rx="1"/><rect x="10" y="18" width="4" height="4" rx="1"/><rect x="18" y="18" width="4" height="4" rx="1"/><line x1="12" y1="6" x2="12" y2="13"/><line x1="4" y1="18" x2="4" y2="13"/><line x1="12" y1="13" x2="4" y2="13"/><line x1="12" y1="13" x2="20" y2="13"/><line x1="20" y1="18" x2="20" y2="13"/></svg></span>
+      Organograma
+    </div>
+    <div class="nav-item" onclick="showPage('treinamentos', this)">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>
+      Treinamentos
+      <span class="nav-badge">2</span>
+    </div>
+    <div class="nav-item" onclick="showPage('aniversariantes', this)">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span>
+      Aniversariantes
+    </div>
+    <div class="nav-item" onclick="showPage('indicadores', this)">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+      Indicadores
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Conhecimento</div>
+    <div class="nav-item" onclick="showPage('conhecimento', this)">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span>
+      Base de Conhecimento
+    </div>
+    <div class="nav-item" onclick="showPage('links', this)">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></span>
+      Links Rapidos
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Suporte</div>
+    <div class="nav-item" onclick="showPage('chamados', this)">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+      TI
+      <span class="nav-badge neutral">5</span>
+    </div>
+    <div class="nav-item" onclick="showPage('dados', this)">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span>
+      Dados
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="nav-item" onclick="">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg></span>
+      Configuracoes
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title" id="page-title">Boa tarde, Bruno</div>
+    <div class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Buscar na intranet...">
+    </div>
+    <div class="topbar-btn" title="Notificacoes">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <div class="notif-dot"></div>
+    </div>
+    <div class="topbar-btn" id="theme-toggle" title="Alternar tema" onclick="toggleTheme()" style="cursor:pointer;">
+      <svg id="icon-dark" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <svg id="icon-light" viewBox="0 0 24 24" style="display:none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </div>
+    <div class="avatar topbar-avatar">BM</div>
+  </header>
+
+  <div class="content">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="page-header">
+        <h1>Inicio</h1>
+        <p>Sexta-feira, 5 de junho de 2026 &mdash; Semana 23</p>
+      </div>
+
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-icon-box blue-bg" style="background:var(--blue-bg);color:var(--primary);">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div class="metric-label">Colaboradores</div>
+          <div class="metric-value">148</div>
+          <div class="metric-delta delta-up">+3 neste mes</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--green-bg);color:var(--green);">
+            <svg viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16"/><path d="M6 2v20"/><line x1="14" y1="10" x2="12" y2="10"/><line x1="14" y1="14" x2="12" y2="14"/></svg>
+          </div>
+          <div class="metric-label">Comunicados</div>
+          <div class="metric-value">12</div>
+          <div class="metric-delta delta-neutral">Junho 2026</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--orange-bg);color:var(--orange);">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="metric-label">Eventos do Mes</div>
+          <div class="metric-value">7</div>
+          <div class="metric-delta delta-neutral">Proximo: 10 Jun</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--red-bg);color:var(--red);">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="metric-label">Chamados TI Abertos</div>
+          <div class="metric-value">5</div>
+          <div class="metric-delta delta-down">2 com alta prioridade</div>
+        </div>
+      </div>
+
+      <div class="g31">
+        <!-- Ultimas noticias -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-head-title">Ultimas Noticias</div>
+            <div class="card-link" onclick="showPageByName('feed')">Ver todas</div>
+          </div>
+          <div class="card-body">
+            <div class="feed-post">
+              <div class="post-avatar" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">RF</div>
+              <div class="post-body">
+                <div class="post-meta">
+                  <span class="post-name">Renata Fonseca</span>
+                  <span class="post-dept">Diretora de RH</span>
+                  <span class="post-tag tag-rh">RH</span>
+                  <span class="post-time">hoje, 09:14</span>
+                </div>
+                <div class="post-text">Nova politica de home office aprovada. A partir de julho, equipes tecnicas poderao trabalhar 3 dias remotos por semana. O formulario de adesao estara disponivel na proxima segunda-feira.</div>
+                <div class="post-actions">
+                  <span class="post-action-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>24 curtidas</span>
+                  <span class="post-action-btn"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>8 comentarios</span>
+                </div>
+              </div>
+            </div>
+            <div class="feed-post">
+              <div class="post-avatar" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);">TA</div>
+              <div class="post-body">
+                <div class="post-meta">
+                  <span class="post-name">Thiago Alves</span>
+                  <span class="post-dept">Lider de TI</span>
+                  <span class="post-tag tag-ti">TI</span>
+                  <span class="post-time">ontem, 11:05</span>
+                </div>
+                <div class="post-text">Migracao dos servidores de producao concluida com sucesso. Todos os sistemas estao operando normalmente. A VPN foi atualizada — verifiquem o novo guia de configuracao no portal de documentos.</div>
+                <div class="post-actions">
+                  <span class="post-action-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>11 curtidas</span>
+                  <span class="post-action-btn"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>3 comentarios</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lateral -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <!-- Aniversarios -->
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Aniversarios do Mes</div></div>
+            <div class="card-body">
+              <div class="bday-item">
+                <div class="avatar" style="width:30px;height:30px;font-size:11px;background:linear-gradient(135deg,#ec4899,#db2777);">ML</div>
+                <div>
+                  <div class="bday-name">Marina Lima</div>
+                  <div class="bday-dept">Design</div>
+                </div>
+                <div class="bday-pill pill-today">Hoje</div>
+              </div>
+              <div class="bday-item">
+                <div class="avatar" style="width:30px;height:30px;font-size:11px;background:linear-gradient(135deg,#3b82f6,#2563eb);">JP</div>
+                <div>
+                  <div class="bday-name">Joao Pedro</div>
+                  <div class="bday-dept">Vendas</div>
+                </div>
+                <div class="bday-pill pill-soon">09/06</div>
+              </div>
+              <div class="bday-item">
+                <div class="avatar" style="width:30px;height:30px;font-size:11px;background:linear-gradient(135deg,#10b981,#059669);">AS</div>
+                <div>
+                  <div class="bday-name">Ana Silva</div>
+                  <div class="bday-dept">Financeiro</div>
+                </div>
+                <div class="bday-pill pill-soon">14/06</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Documentos fixados -->
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Documentos Fixados</div></div>
+            <div class="card-body padded" style="padding-top:4px;padding-bottom:4px;">
+              <div class="pinned-item">
+                <div class="pinned-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="pinned-title">Guia do Colaborador 2026</div>
+                <div class="pinned-date">Jan 2026</div>
+              </div>
+              <div class="pinned-item">
+                <div class="pinned-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="pinned-title">Calendario de Ferias 2026</div>
+                <div class="pinned-date">Dez 2025</div>
+              </div>
+              <div class="pinned-item">
+                <div class="pinned-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="pinned-title">Politica de Seguranca da Info</div>
+                <div class="pinned-date">Mar 2026</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TREINAMENTOS WIDGET -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-head">
+          <div class="card-head-title">Meus Treinamentos</div>
+          <div class="card-link" onclick="showPageByName('treinamentos')">Ver todos</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border);">
+
+          <div style="padding:16px 18px;border-right:1px solid var(--border);cursor:pointer;transition:background 0.12s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:10px;font-weight:700;background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:20px;text-transform:uppercase;">Pendente</span>
+              <span style="font-size:11px;color:var(--red);font-weight:600;">Vence 20 Jun</span>
+            </div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px;line-height:1.3;">LGPD — Lei Geral de Protecao de Dados</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">Compliance &middot; 45 min</div>
+            <div style="height:5px;background:var(--border);border-radius:99px;overflow:hidden;">
+              <div style="height:100%;width:0%;background:var(--primary);border-radius:99px;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">Nao iniciado</div>
+          </div>
+
+          <div style="padding:16px 18px;border-right:1px solid var(--border);cursor:pointer;transition:background 0.12s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:10px;font-weight:700;background:#fef3c7;color:#b45309;padding:2px 8px;border-radius:20px;text-transform:uppercase;">Em andamento</span>
+              <span style="font-size:11px;color:var(--orange);font-weight:600;">Vence 30 Jun</span>
+            </div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px;line-height:1.3;">SST e Meio Ambiente</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">Seguranca &middot; 60 min</div>
+            <div style="height:5px;background:var(--border);border-radius:99px;overflow:hidden;">
+              <div style="height:100%;width:40%;background:var(--orange);border-radius:99px;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">40% concluido</div>
+          </div>
+
+          <div style="padding:16px 18px;border-right:1px solid var(--border);cursor:pointer;transition:background 0.12s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:10px;font-weight:700;background:#d1fae5;color:#047857;padding:2px 8px;border-radius:20px;text-transform:uppercase;">Concluido</span>
+              <span style="font-size:11px;color:var(--green);font-weight:600;">Mai 2026</span>
+            </div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px;line-height:1.3;">Codigo de Etica e Conduta</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">Compliance &middot; 30 min</div>
+            <div style="height:5px;background:var(--border);border-radius:99px;overflow:hidden;">
+              <div style="height:100%;width:100%;background:var(--green);border-radius:99px;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--green);font-weight:600;margin-top:4px;">Concluido em 12 Mai</div>
+          </div>
+
+          <div style="padding:16px 18px;cursor:pointer;transition:background 0.12s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:10px;font-weight:700;background:#d1fae5;color:#047857;padding:2px 8px;border-radius:20px;text-transform:uppercase;">Concluido</span>
+              <span style="font-size:11px;color:var(--green);font-weight:600;">Abr 2026</span>
+            </div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px;line-height:1.3;">Prevencao ao Assedio</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">RH &middot; 40 min</div>
+            <div style="height:5px;background:var(--border);border-radius:99px;overflow:hidden;">
+              <div style="height:100%;width:100%;background:var(--green);border-radius:99px;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--green);font-weight:600;margin-top:4px;">Concluido em 03 Abr</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FEED -->
+    <div class="page" id="page-feed">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <div>
+          <h1 style="font-size:20px;font-weight:800;">Feed de Noticias</h1>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:3px;">Portal de comunicacao interna</p>
+        </div>
+        <button class="new-chamado-btn">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Publicar Noticia
+        </button>
+      </div>
+
+      <!-- Filtros de categoria -->
+      <div class="chamados-filters" style="margin-bottom:20px;">
+        <div class="filter-btn active">Todas</div>
+        <div class="filter-btn">Diretoria</div>
+        <div class="filter-btn">RH</div>
+        <div class="filter-btn">TI</div>
+        <div class="filter-btn">Marketing</div>
+        <div class="filter-btn">Administrativo</div>
+      </div>
+
+      <!-- Destaque principal + coluna lateral -->
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;">
+
+        <!-- Coluna principal -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+          <!-- CARD DESTAQUE -->
+          <div class="card" style="overflow:hidden;cursor:pointer;transition:box-shadow 0.15s;" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,0.09)'" onmouseout="this.style.boxShadow=''">
+            <div style="height:200px;background:linear-gradient(135deg,#1a56db 0%,#1e3a8a 60%,#0f172a 100%);position:relative;display:flex;align-items:flex-end;padding:24px;">
+              <div style="position:absolute;inset:0;opacity:0.15;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(255,255,255,0.05) 40px,rgba(255,255,255,0.05) 80px);"></div>
+              <div style="position:relative;z-index:1;">
+                <span style="background:#fff;color:var(--primary);font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:0.5px;text-transform:uppercase;">Diretoria</span>
+                <div style="color:#fff;font-size:20px;font-weight:800;margin-top:10px;line-height:1.3;max-width:520px;">Resultados do Q1 2026: crescimento de 23% em receita recorrente</div>
+              </div>
+            </div>
+            <div style="padding:18px 20px;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#ef4444,#dc2626);">DG</div>
+                <span style="font-size:12px;font-weight:600;">Diretoria Geral</span>
+                <span style="font-size:11px;color:var(--text-muted);">02 de junho de 2026</span>
+                <span style="margin-left:auto;font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:10px;">
+                  <span>68 curtidas</span>
+                  <span>22 comentarios</span>
+                </span>
+              </div>
+              <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Crescemos 23% em receita recorrente e 18% em novos clientes no primeiro trimestre de 2026. Obrigado a cada colaborador que fez isso acontecer. A apresentacao completa esta disponivel na pasta Resultados no Drive interno.</p>
+              <div style="margin-top:14px;">
+                <span style="font-size:12px;font-weight:600;color:var(--primary);cursor:pointer;">Ler noticia completa &rarr;</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- GRADE DE NOTICIAS SECUNDARIAS -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+            <div class="card" style="cursor:pointer;transition:box-shadow 0.15s;overflow:hidden;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow=''">
+              <div style="height:100px;background:linear-gradient(135deg,#6366f1,#4f46e5);display:flex;align-items:center;justify-content:center;">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              </div>
+              <div style="padding:14px 16px;">
+                <span class="post-tag tag-rh" style="margin-bottom:6px;display:inline-block;">RH</span>
+                <div style="font-size:13px;font-weight:700;line-height:1.4;margin-bottom:6px;">Nova politica de home office aprovada para equipes tecnicas</div>
+                <div style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:8px;">
+                  <span>Renata Fonseca</span>
+                  <span>&middot;</span>
+                  <span>hoje, 09:14</span>
+                  <span style="margin-left:auto;">24 curtidas</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="cursor:pointer;transition:box-shadow 0.15s;overflow:hidden;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow=''">
+              <div style="height:100px;background:linear-gradient(135deg,#0ea5e9,#0284c7);display:flex;align-items:center;justify-content:center;">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <div style="padding:14px 16px;">
+                <span class="post-tag tag-ti" style="margin-bottom:6px;display:inline-block;">TI</span>
+                <div style="font-size:13px;font-weight:700;line-height:1.4;margin-bottom:6px;">Migracao de servidores concluida — VPN atualizada</div>
+                <div style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:8px;">
+                  <span>Thiago Alves</span>
+                  <span>&middot;</span>
+                  <span>ontem, 11:05</span>
+                  <span style="margin-left:auto;">11 curtidas</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="cursor:pointer;transition:box-shadow 0.15s;overflow:hidden;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow=''">
+              <div style="height:100px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <div style="padding:14px 16px;">
+                <span class="post-tag tag-mkt" style="margin-bottom:6px;display:inline-block;">Marketing</span>
+                <div style="font-size:13px;font-weight:700;line-height:1.4;margin-bottom:6px;">Campanha Q3 encerrada com 140% da meta de leads</div>
+                <div style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:8px;">
+                  <span>Paulo Meireles</span>
+                  <span>&middot;</span>
+                  <span>30 mai</span>
+                  <span style="margin-left:auto;">52 curtidas</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="cursor:pointer;transition:box-shadow 0.15s;overflow:hidden;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow=''">
+              <div style="height:100px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div style="padding:14px 16px;">
+                <span class="post-tag tag-adm" style="margin-bottom:6px;display:inline-block;">Administrativo</span>
+                <div style="font-size:13px;font-weight:700;line-height:1.4;margin-bottom:6px;">Novo contrato de limpeza e manutucao predial vigente em julho</div>
+                <div style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:8px;">
+                  <span>Sandra Viana</span>
+                  <span>&middot;</span>
+                  <span>28 mai</span>
+                  <span style="margin-left:auto;">9 curtidas</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Coluna lateral -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Mais Lidas</div></div>
+            <div style="padding:4px 18px 8px;">
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+                <div style="font-size:22px;font-weight:900;color:#e5e7eb;line-height:1;width:24px;text-align:center;flex-shrink:0;">1</div>
+                <div>
+                  <div style="font-size:12px;font-weight:700;line-height:1.4;margin-bottom:3px;">Resultados do Q1 2026: crescimento de 23%</div>
+                  <div style="font-size:11px;color:var(--text-muted);">Diretoria &middot; 02 Jun</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+                <div style="font-size:22px;font-weight:900;color:#e5e7eb;line-height:1;width:24px;text-align:center;flex-shrink:0;">2</div>
+                <div>
+                  <div style="font-size:12px;font-weight:700;line-height:1.4;margin-bottom:3px;">Campanha Q3 encerrada com 140% da meta</div>
+                  <div style="font-size:11px;color:var(--text-muted);">Marketing &middot; 30 Mai</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+                <div style="font-size:22px;font-weight:900;color:#e5e7eb;line-height:1;width:24px;text-align:center;flex-shrink:0;">3</div>
+                <div>
+                  <div style="font-size:12px;font-weight:700;line-height:1.4;margin-bottom:3px;">Nova politica de home office aprovada</div>
+                  <div style="font-size:11px;color:var(--text-muted);">RH &middot; 05 Jun</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;cursor:pointer;">
+                <div style="font-size:22px;font-weight:900;color:#e5e7eb;line-height:1;width:24px;text-align:center;flex-shrink:0;">4</div>
+                <div>
+                  <div style="font-size:12px;font-weight:700;line-height:1.4;margin-bottom:3px;">Migracao de servidores concluida com sucesso</div>
+                  <div style="font-size:11px;color:var(--text-muted);">TI &middot; 04 Jun</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Documentos Fixados</div></div>
+            <div class="card-body padded" style="padding-top:4px;padding-bottom:4px;">
+              <div class="pinned-item">
+                <div class="pinned-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="pinned-title">Guia do Colaborador 2026</div>
+              </div>
+              <div class="pinned-item">
+                <div class="pinned-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="pinned-title">Calendario de Ferias 2026</div>
+              </div>
+              <div class="pinned-item">
+                <div class="pinned-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="pinned-title">Metas Q2 2026</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Categorias</div></div>
+            <div style="padding:8px 18px 12px;display:flex;flex-wrap:wrap;gap:6px;">
+              <span style="font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:var(--blue-bg);color:var(--primary);cursor:pointer;">Diretoria</span>
+              <span style="font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:#fce7f3;color:#9d174d;cursor:pointer;">RH</span>
+              <span style="font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:#ede9fe;color:#5b21b6;cursor:pointer;">TI</span>
+              <span style="font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:#d1fae5;color:#065f46;cursor:pointer;">Marketing</span>
+              <span style="font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:#fef3c7;color:#92400e;cursor:pointer;">Administrativo</span>
+              <span style="font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:#f3f4f6;color:#374151;cursor:pointer;">Financeiro</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- RH -->
+    <div class="page" id="page-rh">
+      <div class="page-header">
+        <h1>Mensagens do RH</h1>
+        <p>Comunicados, avisos e orientacoes do departamento de Recursos Humanos</p>
+      </div>
+
+      <div class="g31">
+        <div>
+          <div class="section-divider">Recentes</div>
+          <div class="card">
+            <div class="card-body">
+              <div class="msg-item">
+                <div class="msg-icon blue">
+                  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+                    <div class="msg-title">Nova politica de home office</div>
+                    <span class="badge-new">Novo</span>
+                  </div>
+                  <div class="msg-body">A partir de julho de 2026, colaboradores de areas tecnicas terao direito a 3 dias de trabalho remoto por semana. O formulario de adesao sera disponibilizado em breve. Duvidas devem ser encaminhadas ao RH.</div>
+                  <div class="msg-date">5 de junho de 2026 &mdash; Renata Fonseca, Diretora de RH</div>
+                </div>
+              </div>
+              <div class="msg-item">
+                <div class="msg-icon green">
+                  <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+                    <div class="msg-title">Resultados da Pesquisa de Clima</div>
+                    <span class="badge-new">Novo</span>
+                  </div>
+                  <div class="msg-body">A pesquisa de clima organizacional 2026 foi concluida com 94% de adesao. O indice geral de satisfacao subiu para 82 pontos, o melhor resultado desde 2019. O relatorio completo esta disponivel no portal.</div>
+                  <div class="msg-date">3 de junho de 2026 &mdash; RH Corporativo</div>
+                </div>
+              </div>
+              <div class="msg-item">
+                <div class="msg-icon orange">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div class="msg-title">Lembrete: entrega de atestados medicos</div>
+                  <div class="msg-body">Relembramos que atestados medicos devem ser entregues ao RH em ate 48 horas apos o retorno ao trabalho. Apos este prazo, o colaborador podera ter desconto nos dias de ausencia. Envio pode ser feito pelo portal ou fisicamente.</div>
+                  <div class="msg-date">28 de maio de 2026 &mdash; RH Corporativo</div>
+                </div>
+              </div>
+              <div class="msg-item">
+                <div class="msg-icon blue">
+                  <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div class="msg-title">Programa de Beneficios 2026 — Revisao</div>
+                  <div class="msg-body">O pacote de beneficios foi revisado e inclui agora seguro de vida ampliado, plano odontologico para dependentes e parceria com academias. Acesse o portal de beneficios para atualizar suas escolhas ate o dia 15/06.</div>
+                  <div class="msg-date">20 de maio de 2026 &mdash; Renata Fonseca</div>
+                </div>
+              </div>
+              <div class="msg-item">
+                <div class="msg-icon red">
+                  <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div class="msg-title">Aviso: periodo de greve de onibus — 12 a 14 Jun</div>
+                  <div class="msg-body">Em funcao da greve prevista nos dias 12 a 14 de junho, o RH autoriza trabalho remoto para todos os colaboradores que utilizam transporte publico. Nao e necessario solicitar autorizacao previa.</div>
+                  <div class="msg-date">4 de junho de 2026 &mdash; RH Corporativo</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Contatos do RH</div></div>
+            <div class="card-body padded">
+              <div style="margin-bottom:14px;">
+                <div class="avatar" style="width:40px;height:40px;margin-bottom:8px;background:linear-gradient(135deg,#6366f1,#4f46e5);">RF</div>
+                <div style="font-size:13px;font-weight:700;">Renata Fonseca</div>
+                <div style="font-size:12px;color:var(--text-muted);">Diretora de RH</div>
+                <div style="font-size:12px;color:var(--primary);margin-top:4px;cursor:pointer;">renata@empresa.com.br</div>
+              </div>
+              <div style="margin-bottom:14px;">
+                <div class="avatar" style="width:40px;height:40px;margin-bottom:8px;background:linear-gradient(135deg,#ec4899,#db2777);">LC</div>
+                <div style="font-size:13px;font-weight:700;">Luciana Costa</div>
+                <div style="font-size:12px;color:var(--text-muted);">Analista de RH</div>
+                <div style="font-size:12px;color:var(--primary);margin-top:4px;cursor:pointer;">luciana@empresa.com.br</div>
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);padding-top:10px;border-top:1px solid var(--border);">Ramal interno: 2100<br>Atendimento: seg-sex, 8h-18h</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Links Rapidos RH</div></div>
+            <div class="card-body padded" style="padding-top:4px;padding-bottom:4px;">
+              <div class="pinned-item"><div class="pinned-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="pinned-title">Solicitar Ferias</div></div>
+              <div class="pinned-item"><div class="pinned-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="pinned-title">Holerite Online</div></div>
+              <div class="pinned-item"><div class="pinned-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="pinned-title">Portal de Beneficios</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AREAS -->
+    <div class="page" id="page-areas">
+      <div class="page-header">
+        <h1>Areas da Empresa</h1>
+        <p>Conheça os departamentos, responsaveis e equipes</p>
+      </div>
+      <div class="areas-grid">
+        <div class="area-card">
+          <div class="area-icon blue"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+          <div>
+            <div class="area-name">Comercial</div>
+            <div class="area-head">Dir. Carla Santos</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);">Vendas, prospecao de clientes, gestao de contas e parcerias estrategicas.</div>
+          <div class="area-members">
+            <div class="sm-av" style="background:linear-gradient(135deg,#ef4444,#dc2626);">CS</div>
+            <div class="sm-av" style="background:linear-gradient(135deg,#3b82f6,#2563eb);">BM</div>
+            <div class="sm-av" style="background:linear-gradient(135deg,#10b981,#059669);">PA</div>
+            <div class="sm-av" style="background:#6b7280;">+8</div>
+            <div class="sm-count">11 colaboradores</div>
+          </div>
+        </div>
+        <div class="area-card">
+          <div class="area-icon purple"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+          <div>
+            <div class="area-name">Tecnologia da Informacao</div>
+            <div class="area-head">Dir. Thiago Alves</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);">Infraestrutura, sistemas, seguranca da informacao, suporte e desenvolvimento.</div>
+          <div class="area-members">
+            <div class="sm-av" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);">TA</div>
+            <div class="sm-av" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">LR</div>
+            <div class="sm-av" style="background:#6b7280;">+12</div>
+            <div class="sm-count">14 colaboradores</div>
+          </div>
+        </div>
+        <div class="area-card">
+          <div class="area-icon green"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+          <div>
+            <div class="area-name">Recursos Humanos</div>
+            <div class="area-head">Dir. Renata Fonseca</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);">Recrutamento, treinamentos, beneficios, clima organizacional e desenvolvimento.</div>
+          <div class="area-members">
+            <div class="sm-av" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">RF</div>
+            <div class="sm-av" style="background:linear-gradient(135deg,#ec4899,#db2777);">LC</div>
+            <div class="sm-av" style="background:#6b7280;">+3</div>
+            <div class="sm-count">5 colaboradores</div>
+          </div>
+        </div>
+        <div class="area-card">
+          <div class="area-icon orange"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+          <div>
+            <div class="area-name">Financeiro</div>
+            <div class="area-head">Dir. Pedro Rezende</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);">Contabilidade, contas a pagar e receber, DRE, compliance e planejamento financeiro.</div>
+          <div class="area-members">
+            <div class="sm-av" style="background:linear-gradient(135deg,#f59e0b,#d97706);">PR</div>
+            <div class="sm-av" style="background:linear-gradient(135deg,#10b981,#059669);">AS</div>
+            <div class="sm-av" style="background:#6b7280;">+5</div>
+            <div class="sm-count">7 colaboradores</div>
+          </div>
+        </div>
+        <div class="area-card">
+          <div class="area-icon red"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+          <div>
+            <div class="area-name">Marketing</div>
+            <div class="area-head">Dir. Paulo Meireles</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);">Marca, comunicacao, campanhas digitais, eventos e relacionamento com clientes.</div>
+          <div class="area-members">
+            <div class="sm-av" style="background:linear-gradient(135deg,#10b981,#059669);">PM</div>
+            <div class="sm-av" style="background:linear-gradient(135deg,#ec4899,#db2777);">ML</div>
+            <div class="sm-av" style="background:#6b7280;">+4</div>
+            <div class="sm-count">6 colaboradores</div>
+          </div>
+        </div>
+        <div class="area-card">
+          <div class="area-icon gray"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div>
+            <div class="area-name">Administrativo</div>
+            <div class="area-head">Dir. Sandra Viana</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);">Facilities, compras, juridico, recepcao e gestao patrimonial da empresa.</div>
+          <div class="area-members">
+            <div class="sm-av" style="background:linear-gradient(135deg,#64748b,#475569);">SV</div>
+            <div class="sm-av" style="background:#6b7280;">+4</div>
+            <div class="sm-count">5 colaboradores</div>
+          </div>
+        </div>
+
+        <div class="area-card">
+          <div class="area-icon" style="background:#f0f9ff;color:#0284c7;"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+          <div>
+            <div class="area-name">Dados &amp; IA</div>
+            <div class="area-head">Dir. Thiago Alves</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);">Governanca de dados, analytics, inteligencia artificial, data warehouse e privacidade.</div>
+          <div class="area-members">
+            <div class="sm-av" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);">TA</div>
+            <div class="sm-av" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">FL</div>
+            <div class="sm-av" style="background:#6b7280;">+3</div>
+            <div class="sm-count">5 colaboradores</div>
+          </div>
+        </div>
+
+        <div class="area-card">
+          <div class="area-icon" style="background:#fff7ed;color:#c2410c;"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div>
+            <div class="area-name">Seguranca do Trabalho</div>
+            <div class="area-head">Resp. Carlos Mendes</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);">CIPA, NRs, EPIs, prevencao de acidentes, laudos tecnicos e programas de saude ocupacional.</div>
+          <div class="area-members">
+            <div class="sm-av" style="background:linear-gradient(135deg,#f97316,#c2410c);">CM</div>
+            <div class="sm-av" style="background:linear-gradient(135deg,#fbbf24,#d97706);">JO</div>
+            <div class="sm-av" style="background:#6b7280;">+2</div>
+            <div class="sm-count">4 colaboradores</div>
+          </div>
+        </div>
+
+        <div class="area-card">
+          <div class="area-icon" style="background:#f0fdf4;color:#15803d;"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/><path d="M12 2a14.5 14.5 0 010 20"/><path d="M12 2a14.5 14.5 0 000 20"/><line x1="2" y1="12" x2="22" y2="12"/></svg></div>
+          <div>
+            <div class="area-name">Ambiental</div>
+            <div class="area-head">Resp. Fernanda Rocha</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);">Gestao de residuos, licencas ambientais, ISO 14001, ESG, inventario de carbono e sustentabilidade.</div>
+          <div class="area-members">
+            <div class="sm-av" style="background:linear-gradient(135deg,#22c55e,#15803d);">FR</div>
+            <div class="sm-av" style="background:linear-gradient(135deg,#86efac,#4ade80);color:#14532d;">MV</div>
+            <div class="sm-av" style="background:#6b7280;">+1</div>
+            <div class="sm-count">3 colaboradores</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CALENDARIO -->
+    <div class="page" id="page-calendario">
+      <div class="page-header">
+        <h1>Calendario de Eventos</h1>
+        <p>Eventos corporativos, reunioes e datas importantes</p>
+      </div>
+      <div class="cal-grid">
+        <div>
+          <div class="card" style="padding:20px;">
+            <div class="cal-header">
+              <div class="cal-month-title">Junho 2026</div>
+              <div class="cal-nav">
+                <button class="cal-nav-btn"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+                <button class="cal-nav-btn"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </div>
+            </div>
+            <div class="cal-days-header">
+              <div class="cal-day-name">Dom</div><div class="cal-day-name">Seg</div><div class="cal-day-name">Ter</div>
+              <div class="cal-day-name">Qua</div><div class="cal-day-name">Qui</div><div class="cal-day-name">Sex</div><div class="cal-day-name">Sab</div>
+            </div>
+            <div class="cal-days">
+              <div class="cal-day other-month">1</div><div class="cal-day other-month">2</div><div class="cal-day other-month">3</div>
+              <div class="cal-day other-month">4</div><div class="cal-day other-month">5</div><div class="cal-day other-month">6</div><div class="cal-day other-month">7</div>
+              <div class="cal-day">1</div><div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day has-event">4</div>
+              <div class="today cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div>
+              <div class="cal-day">8</div><div class="cal-day">9</div><div class="cal-day has-event">10</div><div class="cal-day">11</div>
+              <div class="cal-day has-event">12</div><div class="cal-day">13</div><div class="cal-day">14</div>
+              <div class="cal-day">15</div><div class="cal-day has-event">16</div><div class="cal-day">17</div><div class="cal-day">18</div>
+              <div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day has-event">21</div>
+              <div class="cal-day">22</div><div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day has-event">25</div>
+              <div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day">28</div>
+              <div class="cal-day">29</div><div class="cal-day">30</div>
+              <div class="cal-day other-month">1</div><div class="cal-day other-month">2</div><div class="cal-day other-month">3</div><div class="cal-day other-month">4</div><div class="cal-day other-month">5</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-head-title">Proximos Eventos</div></div>
+          <div class="card-body">
+            <div class="event-item">
+              <div class="event-dot ev-blue" style="margin-top:8px;"></div>
+              <div class="event-date-box"><div class="event-day">05</div><div class="event-mon">Jun</div></div>
+              <div class="event-info">
+                <div class="event-name">Reuniao Geral de Resultados Q2</div>
+                <div class="event-desc">Auditorio principal — todos os colaboradores</div>
+                <div class="event-time"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>09:00 — 11:00</div>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-dot ev-green" style="margin-top:8px;"></div>
+              <div class="event-date-box"><div class="event-day">10</div><div class="event-mon">Jun</div></div>
+              <div class="event-info">
+                <div class="event-name">Treinamento: Cultura e Valores</div>
+                <div class="event-desc">Sala de Treinamento B — Obrigatorio novos colaboradores</div>
+                <div class="event-time"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>14:00 — 17:00</div>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-dot ev-orange" style="margin-top:8px;"></div>
+              <div class="event-date-box"><div class="event-day">12</div><div class="event-mon">Jun</div></div>
+              <div class="event-info">
+                <div class="event-name">Festa Junina Corporativa</div>
+                <div class="event-desc">Espaco externo — Todos os colaboradores e familias</div>
+                <div class="event-time"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>16:00 — 21:00</div>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-dot ev-purple" style="margin-top:8px;"></div>
+              <div class="event-date-box"><div class="event-day">16</div><div class="event-mon">Jun</div></div>
+              <div class="event-info">
+                <div class="event-name">Workshop: Lideranca e Feedback</div>
+                <div class="event-desc">Sala de Reunioes A — Gestores e lideres</div>
+                <div class="event-time"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>08:30 — 12:00</div>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-dot ev-red" style="margin-top:8px;"></div>
+              <div class="event-date-box"><div class="event-day">25</div><div class="event-mon">Jun</div></div>
+              <div class="event-info">
+                <div class="event-name">Prazo: Avaliacao de Desempenho</div>
+                <div class="event-desc">Portal RH — Todos os colaboradores</div>
+                <div class="event-time"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Ate 23:59</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORGANOGRAMA -->
+    <div class="page" id="page-organograma">
+      <div class="page-header">
+        <h1>Organograma</h1>
+        <p>Estrutura hierarquica da empresa</p>
+      </div>
+      <div class="card">
+        <div style="padding:12px 20px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-muted);">Passe o mouse sobre um card para ver o objetivo da area</div>
+        <div class="org-wrap">
+          <div class="org-tree">
+
+            <!-- CEO -->
+            <div class="org-level">
+              <div class="flip-card ceo">
+                <div class="flip-inner">
+                  <div class="flip-front is-ceo">
+                    <div class="ob-av" style="background:linear-gradient(135deg,#1a56db,#1e40af);">MF</div>
+                    <div class="ob-name">Marcos Ferreira</div>
+                    <div class="ob-role">CEO</div>
+                  </div>
+                  <div class="flip-back">
+                    <div class="flip-back-title">Direcao Geral</div>
+                    <div class="flip-back-text">Estrategia corporativa, governanca e relacionamento com o conselho e investidores.</div>
+                    <div class="flip-back-contact">mf@empresa.com.br</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="org-connector"></div>
+
+            <!-- Linha horizontal para diretores -->
+            <div style="display:flex;justify-content:center;position:relative;width:100%;margin-bottom:0;">
+              <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:820px;height:1.5px;background:var(--border);"></div>
+              <div style="position:absolute;top:0;left:calc(50% - 410px);width:1.5px;height:28px;background:var(--border);"></div>
+              <div style="position:absolute;top:0;left:calc(50% - 205px);width:1.5px;height:28px;background:var(--border);"></div>
+              <div style="position:absolute;top:0;left:50%;width:1.5px;height:28px;background:var(--border);"></div>
+              <div style="position:absolute;top:0;left:calc(50% + 205px);width:1.5px;height:28px;background:var(--border);"></div>
+              <div style="position:absolute;top:0;left:calc(50% + 410px);width:1.5px;height:28px;background:var(--border);"></div>
+            </div>
+            <div style="height:28px;"></div>
+
+            <!-- Diretores -->
+            <div class="org-level" style="gap:20px;">
+              <div class="flip-card">
+                <div class="flip-inner">
+                  <div class="flip-front">
+                    <div class="ob-av" style="background:linear-gradient(135deg,#ef4444,#dc2626);">CS</div>
+                    <div class="ob-name">Carla Santos</div>
+                    <div class="ob-role">Dir. Comercial</div>
+                  </div>
+                  <div class="flip-back" style="background:linear-gradient(135deg,#dc2626,#991b1b);">
+                    <div class="flip-back-title">Comercial</div>
+                    <div class="flip-back-text">Vendas, prospecao, gestao de contas estrategicas e expansao de receita.</div>
+                    <div class="flip-back-contact">carla@empresa.com.br</div>
+                  </div>
+                </div>
+              </div>
+              <div class="flip-card">
+                <div class="flip-inner">
+                  <div class="flip-front">
+                    <div class="ob-av" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);">TA</div>
+                    <div class="ob-name">Thiago Alves</div>
+                    <div class="ob-role">Dir. TI</div>
+                  </div>
+                  <div class="flip-back" style="background:linear-gradient(135deg,#0284c7,#0369a1);">
+                    <div class="flip-back-title">Tecnologia</div>
+                    <div class="flip-back-text">Infraestrutura, sistemas, seguranca da informacao, dados e desenvolvimento.</div>
+                    <div class="flip-back-contact">thiago@empresa.com.br</div>
+                  </div>
+                </div>
+              </div>
+              <div class="flip-card">
+                <div class="flip-inner">
+                  <div class="flip-front">
+                    <div class="ob-av" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">RF</div>
+                    <div class="ob-name">Renata Fonseca</div>
+                    <div class="ob-role">Dir. RH</div>
+                  </div>
+                  <div class="flip-back purple-back">
+                    <div class="flip-back-title">Recursos Humanos</div>
+                    <div class="flip-back-text">Pessoas, cultura, recrutamento, beneficios e desenvolvimento organizacional.</div>
+                    <div class="flip-back-contact">renata@empresa.com.br</div>
+                  </div>
+                </div>
+              </div>
+              <div class="flip-card">
+                <div class="flip-inner">
+                  <div class="flip-front">
+                    <div class="ob-av" style="background:linear-gradient(135deg,#f59e0b,#d97706);">PR</div>
+                    <div class="ob-name">Pedro Rezende</div>
+                    <div class="ob-role">Dir. Financeiro</div>
+                  </div>
+                  <div class="flip-back orange-back">
+                    <div class="flip-back-title">Financeiro</div>
+                    <div class="flip-back-text">Contabilidade, DRE, fluxo de caixa, compliance financeiro e planejamento.</div>
+                    <div class="flip-back-contact">pedro@empresa.com.br</div>
+                  </div>
+                </div>
+              </div>
+              <div class="flip-card">
+                <div class="flip-inner">
+                  <div class="flip-front">
+                    <div class="ob-av" style="background:linear-gradient(135deg,#10b981,#059669);">PM</div>
+                    <div class="ob-name">Paulo Meireles</div>
+                    <div class="ob-role">Dir. Marketing</div>
+                  </div>
+                  <div class="flip-back green-back">
+                    <div class="flip-back-title">Marketing</div>
+                    <div class="flip-back-text">Marca, campanhas digitais, eventos, conteudo e relacionamento com o mercado.</div>
+                    <div class="flip-back-contact">paulo@empresa.com.br</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Linha para gerentes comerciais -->
+            <div style="height:28px;position:relative;display:flex;justify-content:center;width:100%;">
+              <div style="position:absolute;top:0;width:1.5px;height:28px;background:var(--border);left:calc(50% - 410px);"></div>
+            </div>
+
+            <!-- Gerentes -->
+            <div class="org-level" style="justify-content:flex-start;padding-left:calc(50% - 490px);gap:14px;">
+              <div class="flip-card" style="width:135px;height:130px;">
+                <div class="flip-inner">
+                  <div class="flip-front">
+                    <div class="ob-av" style="background:linear-gradient(135deg,#3b82f6,#2563eb);width:32px;height:32px;font-size:11px;">BM</div>
+                    <div class="ob-name" style="font-size:11px;">Bruno Macedo</div>
+                    <div class="ob-role">Ger. Comercial</div>
+                  </div>
+                  <div class="flip-back" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);">
+                    <div class="flip-back-title">Comercial SP/RJ</div>
+                    <div class="flip-back-text">Gestao da equipe de vendas e contas do eixo SP-RJ.</div>
+                    <div class="flip-back-contact">bruno@empresa.com.br</div>
+                  </div>
+                </div>
+              </div>
+              <div class="flip-card" style="width:135px;height:130px;">
+                <div class="flip-inner">
+                  <div class="flip-front">
+                    <div class="ob-av" style="background:linear-gradient(135deg,#ec4899,#db2777);width:32px;height:32px;font-size:11px;">JR</div>
+                    <div class="ob-name" style="font-size:11px;">Julia Rocha</div>
+                    <div class="ob-role">Ger. de Contas</div>
+                  </div>
+                  <div class="flip-back pink-back">
+                    <div class="flip-back-title">Key Accounts</div>
+                    <div class="flip-back-text">Gestao de contas estrategicas e renovacoes de contratos.</div>
+                    <div class="flip-back-contact">julia@empresa.com.br</div>
+                  </div>
+                </div>
+              </div>
+              <div class="flip-card" style="width:135px;height:130px;">
+                <div class="flip-inner">
+                  <div class="flip-front">
+                    <div class="ob-av" style="background:linear-gradient(135deg,#64748b,#475569);width:32px;height:32px;font-size:11px;">PA</div>
+                    <div class="ob-name" style="font-size:11px;">Paulo Andrade</div>
+                    <div class="ob-role">Vendas SP</div>
+                  </div>
+                  <div class="flip-back dark-back">
+                    <div class="flip-back-title">Vendas Regiao SP</div>
+                    <div class="flip-back-text">Prospecao e fechamento de novos negocios no interior de SP.</div>
+                    <div class="flip-back-contact">paulo.a@empresa.com.br</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAMADOS TI -->
+    <div class="page" id="page-chamados">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <h1>Suporte TI</h1>
+          <p>Solicitacoes, incidentes e suporte tecnico</p>
+        </div>
+        <button class="new-chamado-btn">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nova Solicitacao
+        </button>
+      </div>
+
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--blue-bg);color:var(--primary);">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="metric-label">Abertos</div>
+          <div class="metric-value">5</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--orange-bg);color:var(--orange);">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="metric-label">Em Atendimento</div>
+          <div class="metric-value">3</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--green-bg);color:var(--green);">
+            <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="metric-label">Resolvidos (mes)</div>
+          <div class="metric-value">28</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:#f3f4f6;color:#374151;">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="metric-label">Tempo Medio</div>
+          <div class="metric-value" style="font-size:20px;">4,2h</div>
+        </div>
+      </div>
+
+      <div class="chamados-filters">
+        <div class="filter-btn active">Todos</div>
+        <div class="filter-btn">Abertos</div>
+        <div class="filter-btn">Em Atendimento</div>
+        <div class="filter-btn">Resolvidos</div>
+        <div class="filter-btn">Alta Prioridade</div>
+      </div>
+
+      <div class="card">
+        <div style="padding:12px 18px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:52px 1fr 80px 100px 70px;gap:14px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">N.</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Descricao</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Prioridade</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Status</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;text-align:right;">Data</div>
+        </div>
+        <div class="chamado-item">
+          <div class="ch-id">#0042</div>
+          <div class="ch-info">
+            <div class="ch-title">VPN nao conecta apos atualizacao — Windows 11</div>
+            <div class="ch-sub">Bruno Macedo · Comercial</div>
+          </div>
+          <div class="ch-prio prio-alta">Alta</div>
+          <div class="ch-status st-prog"><div class="dot"></div>Em atendimento</div>
+          <div class="ch-date">05 Jun</div>
+        </div>
+        <div class="chamado-item">
+          <div class="ch-id">#0041</div>
+          <div class="ch-info">
+            <div class="ch-title">Acesso ao sistema ERP bloqueado</div>
+            <div class="ch-sub">Ana Silva · Financeiro</div>
+          </div>
+          <div class="ch-prio prio-alta">Alta</div>
+          <div class="ch-status st-open"><div class="dot"></div>Aberto</div>
+          <div class="ch-date">05 Jun</div>
+        </div>
+        <div class="chamado-item">
+          <div class="ch-id">#0040</div>
+          <div class="ch-info">
+            <div class="ch-title">Impressora do 3 andar nao imprime em rede</div>
+            <div class="ch-sub">Carla Santos · Comercial</div>
+          </div>
+          <div class="ch-prio prio-media">Media</div>
+          <div class="ch-status st-prog"><div class="dot"></div>Em atendimento</div>
+          <div class="ch-date">04 Jun</div>
+        </div>
+        <div class="chamado-item">
+          <div class="ch-id">#0039</div>
+          <div class="ch-info">
+            <div class="ch-title">Solicitar criacao de e-mail para novo colaborador</div>
+            <div class="ch-sub">Renata Fonseca · RH</div>
+          </div>
+          <div class="ch-prio prio-media">Media</div>
+          <div class="ch-status st-open"><div class="dot"></div>Aberto</div>
+          <div class="ch-date">04 Jun</div>
+        </div>
+        <div class="chamado-item">
+          <div class="ch-id">#0038</div>
+          <div class="ch-info">
+            <div class="ch-title">Monitor secundario nao e reconhecido</div>
+            <div class="ch-sub">Marcos Ferreira · Diretoria</div>
+          </div>
+          <div class="ch-prio prio-baixa">Baixa</div>
+          <div class="ch-status st-open"><div class="dot"></div>Aberto</div>
+          <div class="ch-date">03 Jun</div>
+        </div>
+        <div class="chamado-item">
+          <div class="ch-id">#0037</div>
+          <div class="ch-info">
+            <div class="ch-title">Lentidao no sistema de gestao — modulo relatorios</div>
+            <div class="ch-sub">Pedro Rezende · Financeiro</div>
+          </div>
+          <div class="ch-prio prio-media">Media</div>
+          <div class="ch-status st-prog"><div class="dot"></div>Em atendimento</div>
+          <div class="ch-date">02 Jun</div>
+        </div>
+        <div class="chamado-item">
+          <div class="ch-id">#0036</div>
+          <div class="ch-info">
+            <div class="ch-title">Configurar novo notebook — Dev Backend</div>
+            <div class="ch-sub">Thiago Alves · TI</div>
+          </div>
+          <div class="ch-prio prio-baixa">Baixa</div>
+          <div class="ch-status st-done"><div class="dot"></div>Resolvido</div>
+          <div class="ch-date">01 Jun</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TREINAMENTOS -->
+    <div class="page" id="page-treinamentos">
+      <div class="page-header">
+        <h1>Treinamentos</h1>
+        <p>Trilhas obrigatorias, compliance e desenvolvimento profissional</p>
+      </div>
+
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--blue-bg);color:var(--primary);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+          </div>
+          <div class="metric-label">Total de Trilhas</div>
+          <div class="metric-value">8</div>
+          <div class="metric-delta delta-neutral">Ano 2026</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--green-bg);color:var(--green);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="metric-label">Concluidos</div>
+          <div class="metric-value">2</div>
+          <div class="metric-delta delta-up">25% da trilha</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--orange-bg);color:var(--orange);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="metric-label">Em Andamento</div>
+          <div class="metric-value">1</div>
+          <div class="metric-delta delta-neutral">Vence em 25 dias</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--red-bg);color:var(--red);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="metric-label">Pendentes</div>
+          <div class="metric-value">5</div>
+          <div class="metric-delta delta-down">2 com prazo proximo</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 300px;gap:16px;">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+
+          <!-- OBRIGATORIOS -->
+          <div class="section-divider" style="margin-top:0;">Obrigatorios por Lei</div>
+
+          <!-- LGPD -->
+          <div class="card" style="cursor:pointer;" onmouseover="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.07)'" onmouseout="this.style.boxShadow=''">
+            <div style="padding:18px 20px;display:flex;gap:16px;align-items:flex-start;">
+              <div style="width:48px;height:48px;border-radius:10px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                  <div style="font-size:14px;font-weight:700;">LGPD — Lei Geral de Protecao de Dados</div>
+                  <span style="font-size:10px;font-weight:700;background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:20px;">Pendente</span>
+                  <span style="font-size:10px;font-weight:700;background:#ede9fe;color:#5b21b6;padding:2px 8px;border-radius:20px;">Obrigatorio</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Entenda os principios da LGPD, seus direitos e obrigacoes como colaborador no tratamento de dados pessoais de clientes e parceiros.</div>
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                  <div style="height:6px;flex:1;min-width:120px;background:var(--border);border-radius:99px;overflow:hidden;">
+                    <div style="height:100%;width:0%;background:var(--primary);border-radius:99px;"></div>
+                  </div>
+                  <span style="font-size:11px;font-weight:700;color:var(--text-muted);white-space:nowrap;">0%</span>
+                  <span style="font-size:11px;color:var(--text-muted);">45 min</span>
+                  <span style="font-size:11px;color:var(--red);font-weight:600;">Prazo: 20 Jun 2026</span>
+                  <button class="new-chamado-btn" style="padding:5px 14px;font-size:12px;">Iniciar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SST -->
+          <div class="card" style="cursor:pointer;" onmouseover="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.07)'" onmouseout="this.style.boxShadow=''">
+            <div style="padding:18px 20px;display:flex;gap:16px;align-items:flex-start;">
+              <div style="width:48px;height:48px;border-radius:10px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                  <div style="font-size:14px;font-weight:700;">SST — Saude, Seguranca do Trabalho e Meio Ambiente</div>
+                  <span style="font-size:10px;font-weight:700;background:#fef3c7;color:#b45309;padding:2px 8px;border-radius:20px;">Em andamento</span>
+                  <span style="font-size:10px;font-weight:700;background:#ede9fe;color:#5b21b6;padding:2px 8px;border-radius:20px;">Obrigatorio</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Normas de seguranca, uso de EPIs, procedimentos de emergencia, gestao de residuos e responsabilidade ambiental conforme NR-1 e ISO 14001.</div>
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                  <div style="height:6px;flex:1;min-width:120px;background:var(--border);border-radius:99px;overflow:hidden;">
+                    <div style="height:100%;width:40%;background:var(--orange);border-radius:99px;"></div>
+                  </div>
+                  <span style="font-size:11px;font-weight:700;color:var(--orange);white-space:nowrap;">40%</span>
+                  <span style="font-size:11px;color:var(--text-muted);">60 min</span>
+                  <span style="font-size:11px;color:var(--orange);font-weight:600;">Prazo: 30 Jun 2026</span>
+                  <button class="new-chamado-btn" style="padding:5px 14px;font-size:12px;background:var(--orange);" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='var(--orange)'">Continuar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Prevencao Assedio -->
+          <div class="card" style="opacity:0.85;">
+            <div style="padding:18px 20px;display:flex;gap:16px;align-items:flex-start;">
+              <div style="width:48px;height:48px;border-radius:10px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                  <div style="font-size:14px;font-weight:700;">Prevencao ao Assedio Moral e Sexual</div>
+                  <span style="font-size:10px;font-weight:700;background:#d1fae5;color:#047857;padding:2px 8px;border-radius:20px;">Concluido</span>
+                  <span style="font-size:10px;font-weight:700;background:#ede9fe;color:#5b21b6;padding:2px 8px;border-radius:20px;">Obrigatorio</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Conceitos, exemplos praticos e canais de denuncia conforme a Lei 14.457/2022 (Programa Empresa Cidada).</div>
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                  <div style="height:6px;flex:1;min-width:120px;background:var(--border);border-radius:99px;overflow:hidden;">
+                    <div style="height:100%;width:100%;background:var(--green);border-radius:99px;"></div>
+                  </div>
+                  <span style="font-size:11px;font-weight:700;color:var(--green);white-space:nowrap;">100%</span>
+                  <span style="font-size:11px;color:var(--text-muted);">40 min</span>
+                  <span style="font-size:11px;color:var(--green);font-weight:600;">Concluido em 03 Abr 2026</span>
+                  <button style="padding:5px 14px;font-size:12px;border:1.5px solid var(--border);background:var(--card);border-radius:7px;cursor:pointer;font-weight:600;color:var(--text-muted);">Ver certificado</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPLIANCE -->
+          <div class="section-divider">Compliance e Governanca</div>
+
+          <!-- Codigo Etica -->
+          <div class="card" style="opacity:0.85;">
+            <div style="padding:18px 20px;display:flex;gap:16px;align-items:flex-start;">
+              <div style="width:48px;height:48px;border-radius:10px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                  <div style="font-size:14px;font-weight:700;">Codigo de Etica e Conduta</div>
+                  <span style="font-size:10px;font-weight:700;background:#d1fae5;color:#047857;padding:2px 8px;border-radius:20px;">Concluido</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Principios e valores que guiam o comportamento de todos os colaboradores nas relacoes internas e com terceiros.</div>
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                  <div style="height:6px;flex:1;min-width:120px;background:var(--border);border-radius:99px;overflow:hidden;">
+                    <div style="height:100%;width:100%;background:var(--green);border-radius:99px;"></div>
+                  </div>
+                  <span style="font-size:11px;font-weight:700;color:var(--green);white-space:nowrap;">100%</span>
+                  <span style="font-size:11px;color:var(--text-muted);">30 min</span>
+                  <span style="font-size:11px;color:var(--green);font-weight:600;">Concluido em 12 Mai 2026</span>
+                  <button style="padding:5px 14px;font-size:12px;border:1.5px solid var(--border);background:var(--card);border-radius:7px;cursor:pointer;font-weight:600;color:var(--text-muted);">Ver certificado</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seguranca Info -->
+          <div class="card" style="cursor:pointer;" onmouseover="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.07)'" onmouseout="this.style.boxShadow=''">
+            <div style="padding:18px 20px;display:flex;gap:16px;align-items:flex-start;">
+              <div style="width:48px;height:48px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                  <div style="font-size:14px;font-weight:700;">Seguranca da Informacao</div>
+                  <span style="font-size:10px;font-weight:700;background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:20px;">Pendente</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Boas praticas de seguranca digital, senhas, phishing, uso de dispositivos corporativos e resposta a incidentes.</div>
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                  <div style="height:6px;flex:1;min-width:120px;background:var(--border);border-radius:99px;overflow:hidden;">
+                    <div style="height:100%;width:0%;background:var(--purple);border-radius:99px;"></div>
+                  </div>
+                  <span style="font-size:11px;font-weight:700;color:var(--text-muted);white-space:nowrap;">0%</span>
+                  <span style="font-size:11px;color:var(--text-muted);">50 min</span>
+                  <span style="font-size:11px;color:var(--text-muted);font-weight:600;">Prazo: 31 Jul 2026</span>
+                  <button class="new-chamado-btn" style="padding:5px 14px;font-size:12px;">Iniciar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Anticorrupcao -->
+          <div class="card" style="cursor:pointer;" onmouseover="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.07)'" onmouseout="this.style.boxShadow=''">
+            <div style="padding:18px 20px;display:flex;gap:16px;align-items:flex-start;">
+              <div style="width:48px;height:48px;border-radius:10px;background:var(--orange-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                  <div style="font-size:14px;font-weight:700;">Conformidade e Anticorrupcao (Lei 12.846)</div>
+                  <span style="font-size:10px;font-weight:700;background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:20px;">Pendente</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Obrigacoes legais da Lei Anticorrupcao, politica de presentes e hospitalidades, conflito de interesses e canal de denuncia.</div>
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                  <div style="height:6px;flex:1;min-width:120px;background:var(--border);border-radius:99px;overflow:hidden;">
+                    <div style="height:100%;width:0%;background:var(--orange);border-radius:99px;"></div>
+                  </div>
+                  <span style="font-size:11px;font-weight:700;color:var(--text-muted);white-space:nowrap;">0%</span>
+                  <span style="font-size:11px;color:var(--text-muted);">35 min</span>
+                  <span style="font-size:11px;color:var(--text-muted);font-weight:600;">Prazo: 31 Ago 2026</span>
+                  <button class="new-chamado-btn" style="padding:5px 14px;font-size:12px;">Iniciar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Coluna lateral -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Meu Progresso Geral</div></div>
+            <div class="card-body padded">
+              <div style="text-align:center;margin-bottom:16px;">
+                <div style="font-size:36px;font-weight:900;color:var(--primary);">25%</div>
+                <div style="font-size:12px;color:var(--text-muted);">da trilha 2026 concluida</div>
+              </div>
+              <div style="height:8px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:14px;">
+                <div style="height:100%;width:25%;background:linear-gradient(90deg,var(--primary),#60a5fa);border-radius:99px;"></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;justify-content:space-between;font-size:12px;">
+                  <span style="color:var(--text-muted);">Concluidos</span>
+                  <span style="font-weight:700;color:var(--green);">2 de 8</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;">
+                  <span style="color:var(--text-muted);">Em andamento</span>
+                  <span style="font-weight:700;color:var(--orange);">1 de 8</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;">
+                  <span style="color:var(--text-muted);">Pendentes</span>
+                  <span style="font-weight:700;color:var(--red);">5 de 8</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Proximos Prazos</div></div>
+            <div class="card-body" style="padding-top:4px;padding-bottom:4px;">
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+                <div style="width:34px;height:34px;border-radius:8px;background:var(--red-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;font-weight:700;">LGPD</div>
+                  <div style="font-size:11px;color:var(--red);font-weight:600;">20 de junho</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+                <div style="width:34px;height:34px;border-radius:8px;background:var(--orange-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;font-weight:700;">SST e Meio Ambiente</div>
+                  <div style="font-size:11px;color:var(--orange);font-weight:600;">30 de junho</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;">
+                <div style="width:34px;height:34px;border-radius:8px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;font-weight:700;">Seguranca da Informacao</div>
+                  <div style="font-size:11px;color:var(--text-muted);font-weight:600;">31 de julho</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Certificados Emitidos</div></div>
+            <div class="card-body padded" style="padding-top:4px;padding-bottom:4px;">
+              <div class="pinned-item">
+                <div class="pinned-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div>
+                <div>
+                  <div class="pinned-title">Codigo de Etica e Conduta</div>
+                  <div style="font-size:10px;color:var(--text-muted);">Mai 2026</div>
+                </div>
+              </div>
+              <div class="pinned-item">
+                <div class="pinned-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div>
+                <div>
+                  <div class="pinned-title">Prevencao ao Assedio</div>
+                  <div style="font-size:10px;color:var(--text-muted);">Abr 2026</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DADOS -->
+    <div class="page" id="page-dados">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <h1>Dados</h1>
+          <p>Paineis, relatorios e acesso a bases de dados corporativas</p>
+        </div>
+        <button class="new-chamado-btn">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Solicitar Acesso
+        </button>
+      </div>
+
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--blue-bg);color:var(--primary);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          </div>
+          <div class="metric-label">Bases Disponiveis</div>
+          <div class="metric-value">14</div>
+          <div class="metric-delta delta-neutral">Atualizado hoje</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--green-bg);color:var(--green);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="metric-label">Paineis Ativos</div>
+          <div class="metric-value">8</div>
+          <div class="metric-delta delta-up">+2 este mes</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--orange-bg);color:var(--orange);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div class="metric-label">Usuarios com Acesso</div>
+          <div class="metric-value">42</div>
+          <div class="metric-delta delta-neutral">De 148 colaboradores</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box" style="background:var(--red-bg);color:var(--red);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="metric-label">Solicitacoes Pendentes</div>
+          <div class="metric-value">3</div>
+          <div class="metric-delta delta-down">Aguardando aprovacao</div>
+        </div>
+      </div>
+
+      <div class="g31">
+        <div class="card">
+          <div class="card-head"><div class="card-head-title">Bases de Dados</div></div>
+          <div style="padding:0 18px;">
+            <div class="chamado-item" style="grid-template-columns:1fr;">
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div class="msg-icon blue" style="flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+                <div style="flex:1;">
+                  <div style="font-size:13px;font-weight:700;">DW Comercial</div>
+                  <div style="font-size:12px;color:var(--text-muted);">Vendas, metas e historico de clientes</div>
+                </div>
+                <span class="ch-status st-done" style="font-size:11px;"><div class="dot" style="background:var(--green);"></div>Disponivel</span>
+              </div>
+            </div>
+            <div class="chamado-item">
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div class="msg-icon green" style="flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+                <div style="flex:1;">
+                  <div style="font-size:13px;font-weight:700;">DW Financeiro</div>
+                  <div style="font-size:12px;color:var(--text-muted);">DRE, fluxo de caixa e orcamento</div>
+                </div>
+                <span class="ch-status st-done" style="font-size:11px;"><div class="dot" style="background:var(--green);"></div>Disponivel</span>
+              </div>
+            </div>
+            <div class="chamado-item">
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div class="msg-icon orange" style="flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+                <div style="flex:1;">
+                  <div style="font-size:13px;font-weight:700;">Base RH — Pessoas</div>
+                  <div style="font-size:12px;color:var(--text-muted);">Colaboradores, cargos e historico</div>
+                </div>
+                <span class="ch-status st-prog" style="font-size:11px;"><div class="dot" style="background:var(--orange);"></div>Restrito</span>
+              </div>
+            </div>
+            <div class="chamado-item">
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div class="msg-icon" style="flex-shrink:0;background:#f3f4f6;color:#374151;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+                <div style="flex:1;">
+                  <div style="font-size:13px;font-weight:700;">Logs de Sistema</div>
+                  <div style="font-size:12px;color:var(--text-muted);">Acessos, erros e auditoria de TI</div>
+                </div>
+                <span class="ch-status" style="font-size:11px;color:var(--red);"><div class="dot" style="background:var(--red);"></div>Somente TI</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Responsavel por Dados</div></div>
+            <div class="card-body padded">
+              <div class="avatar" style="width:40px;height:40px;margin-bottom:8px;background:linear-gradient(135deg,#0ea5e9,#0284c7);">TA</div>
+              <div style="font-size:13px;font-weight:700;">Thiago Alves</div>
+              <div style="font-size:12px;color:var(--text-muted);">Lider de TI / Data Owner</div>
+              <div style="font-size:12px;color:var(--primary);margin-top:4px;cursor:pointer;">thiago@empresa.com.br</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">Para solicitar acesso a uma base, clique em "Solicitar Acesso" e preencha o formulario. O prazo de resposta e de 2 dias uteis.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANIVERSARIANTES -->
+    <div class="page" id="page-aniversariantes">
+      <div class="page-header">
+        <h1>Aniversariantes e Novos Colaboradores</h1>
+        <p>Celebre as pessoas que fazem a empresa crescer</p>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-head">
+          <div class="card-head-title">Aniversarios de Junho</div>
+          <div style="font-size:11px;color:var(--text-muted);">8 colaboradores este mes</div>
+        </div>
+        <div class="card-body" style="padding-top:16px;">
+          <div class="people-grid">
+            <div class="person-card">
+              <div class="avatar" style="background:linear-gradient(135deg,#ec4899,#db2777);">ML</div>
+              <div class="pc-name">Marina Lima</div>
+              <div class="pc-dept">Design</div>
+              <div class="pc-date">05 de Junho</div>
+              <div class="pc-tag" style="background:#fce7f3;color:#be185d;">Hoje</div>
+            </div>
+            <div class="person-card">
+              <div class="avatar" style="background:linear-gradient(135deg,#3b82f6,#2563eb);">JP</div>
+              <div class="pc-name">Joao Pedro</div>
+              <div class="pc-dept">Vendas</div>
+              <div class="pc-date">09 de Junho</div>
+              <div class="pc-tag" style="background:#d1fae5;color:#047857;">Em 4 dias</div>
+            </div>
+            <div class="person-card">
+              <div class="avatar" style="background:linear-gradient(135deg,#10b981,#059669);">AS</div>
+              <div class="pc-name">Ana Silva</div>
+              <div class="pc-dept">Financeiro</div>
+              <div class="pc-date">14 de Junho</div>
+              <div class="pc-tag" style="background:#d1fae5;color:#047857;">Em 9 dias</div>
+            </div>
+            <div class="person-card">
+              <div class="avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706);">RC</div>
+              <div class="pc-name">Ricardo Costa</div>
+              <div class="pc-dept">Operacoes</div>
+              <div class="pc-date">17 de Junho</div>
+              <div class="pc-tag" style="background:#fef3c7;color:#92400e;">Em 12 dias</div>
+            </div>
+            <div class="person-card">
+              <div class="avatar" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">PT</div>
+              <div class="pc-name">Patricia Torres</div>
+              <div class="pc-dept">Marketing</div>
+              <div class="pc-date">19 de Junho</div>
+              <div class="pc-tag" style="background:#fef3c7;color:#92400e;">Em 14 dias</div>
+            </div>
+            <div class="person-card">
+              <div class="avatar" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);">LM</div>
+              <div class="pc-name">Lucas Mendes</div>
+              <div class="pc-dept">TI</div>
+              <div class="pc-date">22 de Junho</div>
+              <div class="pc-tag" style="background:#eff6ff;color:#1d4ed8;">Em 17 dias</div>
+            </div>
+            <div class="person-card">
+              <div class="avatar" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);">CF</div>
+              <div class="pc-name">Camila Ferreira</div>
+              <div class="pc-dept">RH</div>
+              <div class="pc-date">25 de Junho</div>
+              <div class="pc-tag" style="background:#eff6ff;color:#1d4ed8;">Em 20 dias</div>
+            </div>
+            <div class="person-card">
+              <div class="avatar" style="background:linear-gradient(135deg,#14b8a6,#0d9488);">FN</div>
+              <div class="pc-name">Felipe Nunes</div>
+              <div class="pc-dept">Comercial</div>
+              <div class="pc-date">28 de Junho</div>
+              <div class="pc-tag" style="background:#eff6ff;color:#1d4ed8;">Em 23 dias</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-title">Novos Colaboradores</div>
+          <div style="font-size:11px;color:var(--text-muted);">Bem-vindos ao time — Junho 2026</div>
+        </div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:10px;padding-top:14px;">
+          <div class="new-employee-card">
+            <div class="avatar" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">VR</div>
+            <div>
+              <div class="nec-name">Viviane Ramos</div>
+              <div class="nec-role">Analista de Dados — Dados & IA</div>
+              <div class="nec-date">Inicio: 02/06/2026</div>
+            </div>
+            <div class="welcome-badge">Bem-vinda!</div>
+          </div>
+          <div class="new-employee-card">
+            <div class="avatar" style="background:linear-gradient(135deg,#10b981,#059669);">MO</div>
+            <div>
+              <div class="nec-name">Marcos Oliveira</div>
+              <div class="nec-role">Tecnico de Seguranca — Seg. do Trabalho</div>
+              <div class="nec-date">Inicio: 05/06/2026</div>
+            </div>
+            <div class="welcome-badge">Bem-vindo!</div>
+          </div>
+          <div class="new-employee-card">
+            <div class="avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706);">IA</div>
+            <div>
+              <div class="nec-name">Isabela Araujo</div>
+              <div class="nec-role">Coordenadora de Marketing — Marketing</div>
+              <div class="nec-date">Inicio: 09/06/2026</div>
+            </div>
+            <div class="welcome-badge">Bem-vinda!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INDICADORES -->
+    <div class="page" id="page-indicadores">
+      <div class="page-header">
+        <h1>Indicadores da Empresa</h1>
+        <p>Visao geral do desempenho — Junho 2026</p>
+      </div>
+
+      <div class="kpi-disclaimer">
+        Estes indicadores sao atualizados mensalmente pela diretoria. Para detalhes ou relatorios completos, acesse o painel executivo ou solicite ao setor de Dados & IA.
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Receita do Mes</div>
+          <div class="kpi-value" style="color:var(--green);">R$ 1,4M</div>
+          <div class="kpi-change up">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;"><polyline points="18 15 12 9 6 15"/></svg>
+            +12% vs. mai
+          </div>
+          <div class="kpi-subtitle">Meta: R$ 1,3M — Superada</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Novos Clientes</div>
+          <div class="kpi-value" style="color:var(--primary);">34</div>
+          <div class="kpi-change up">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;"><polyline points="18 15 12 9 6 15"/></svg>
+            +8 vs. mai
+          </div>
+          <div class="kpi-subtitle">Meta: 30 — Superada</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">NPS Clientes</div>
+          <div class="kpi-value" style="color:var(--green);">72</div>
+          <div class="kpi-change up">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;"><polyline points="18 15 12 9 6 15"/></svg>
+            +4 pontos
+          </div>
+          <div class="kpi-subtitle">Zona de excelencia: acima de 70</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Colaboradores Ativos</div>
+          <div class="kpi-value" style="color:var(--text);">148</div>
+          <div class="kpi-change up">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;"><polyline points="18 15 12 9 6 15"/></svg>
+            +3 este mes
+          </div>
+          <div class="kpi-subtitle">3 admissoes, 0 desligamentos</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Chamados TI Resolvidos</div>
+          <div class="kpi-value" style="color:var(--orange);">43</div>
+          <div class="kpi-change neutral">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Igual mai
+          </div>
+          <div class="kpi-subtitle">5 em aberto</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Treinamentos Concluidos</div>
+          <div class="kpi-value" style="color:var(--purple);">67%</div>
+          <div class="kpi-change down">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;"><polyline points="18 9 12 15 6 9"/></svg>
+            33% pendente
+          </div>
+          <div class="kpi-subtitle">LGPD e SST com maior pendencia</div>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-body padded">
+            <div class="bar-chart-title">Receita por Area — Junho 2026</div>
+            <div class="bar-row">
+              <div class="bar-row-header"><span class="bar-row-label">Comercial</span><span class="bar-row-val">R$ 580K</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--primary);"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-row-header"><span class="bar-row-label">Servicos</span><span class="bar-row-val">R$ 420K</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:60%;background:#3b82f6;"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-row-header"><span class="bar-row-label">Recorrencia</span><span class="bar-row-val">R$ 310K</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:44%;background:var(--green);"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-row-header"><span class="bar-row-label">Outros</span><span class="bar-row-val">R$ 90K</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:13%;background:var(--text-muted);"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body padded">
+            <div class="bar-chart-title">Engajamento na Intranet — Ultimos 7 dias</div>
+            <div class="bar-row">
+              <div class="bar-row-header"><span class="bar-row-label">Feed de Noticias</span><span class="bar-row-val">94%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:94%;background:var(--primary);"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-row-header"><span class="bar-row-label">Treinamentos</span><span class="bar-row-val">67%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:67%;background:var(--purple);"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-row-header"><span class="bar-row-label">Base de Conhecimento</span><span class="bar-row-val">58%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:58%;background:var(--green);"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-row-header"><span class="bar-row-label">Links Rapidos</span><span class="bar-row-val">81%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:81%;background:var(--orange);"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BASE DE CONHECIMENTO -->
+    <div class="page" id="page-conhecimento">
+      <div class="page-header">
+        <h1>Base de Conhecimento</h1>
+        <p>Documentos, processos e guias organizados por area</p>
+      </div>
+
+      <div class="wiki-layout">
+        <!-- Navegacao lateral -->
+        <div class="wiki-nav">
+          <div class="wiki-nav-item active">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Todas as Categorias
+          </div>
+          <div class="wiki-nav-item">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Recursos Humanos
+          </div>
+          <div class="wiki-nav-item">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Tecnologia da Info
+          </div>
+          <div class="wiki-nav-item">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Compliance & Legal
+          </div>
+          <div class="wiki-nav-item">
+            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+            Operacoes
+          </div>
+          <div class="wiki-nav-item">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            Onboarding
+          </div>
+        </div>
+
+        <!-- Conteudo -->
+        <div>
+          <div class="wiki-card">
+            <div class="wiki-card-header">
+              <div class="wiki-cat-icon" style="background:#eff6ff;color:var(--primary);">
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <div class="wiki-cat-title">Recursos Humanos</div>
+              </div>
+              <div class="wiki-cat-count">8 documentos</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Guia do Colaborador 2026</div>
+              <div class="wiki-article-tag" style="background:#d1fae5;color:#047857;">Essencial</div>
+              <div class="wiki-article-meta" style="margin-left:10px;">Jan 2026</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Politica de Home Office e Trabalho Remoto</div>
+              <div class="wiki-article-tag" style="background:#eff6ff;color:#1d4ed8;">Atualizado</div>
+              <div class="wiki-article-meta" style="margin-left:10px;">Jun 2026</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Calendario de Ferias e Feriados 2026</div>
+              <div class="wiki-article-meta">Dez 2025</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Beneficios — Vale Alimentacao, Plano de Saude e Outros</div>
+              <div class="wiki-article-meta">Mar 2026</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Processo de Avaliacao de Desempenho</div>
+              <div class="wiki-article-meta">Fev 2026</div>
+            </div>
+          </div>
+
+          <div class="wiki-card">
+            <div class="wiki-card-header">
+              <div class="wiki-cat-icon" style="background:#f0fdf4;color:var(--green);">
+                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div>
+                <div class="wiki-cat-title">Compliance e Legal</div>
+              </div>
+              <div class="wiki-cat-count">6 documentos</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Politica de Privacidade e Tratamento de Dados (LGPD)</div>
+              <div class="wiki-article-tag" style="background:#d1fae5;color:#047857;">Essencial</div>
+              <div class="wiki-article-meta" style="margin-left:10px;">Jan 2026</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Codigo de Etica e Conduta</div>
+              <div class="wiki-article-tag" style="background:#d1fae5;color:#047857;">Essencial</div>
+              <div class="wiki-article-meta" style="margin-left:10px;">Jan 2026</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Politica Anticorrupcao — Lei 12.846/2013</div>
+              <div class="wiki-article-meta">Jan 2026</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Canal de Denuncias — Como Utilizar</div>
+              <div class="wiki-article-meta">Mar 2026</div>
+            </div>
+          </div>
+
+          <div class="wiki-card">
+            <div class="wiki-card-header">
+              <div class="wiki-cat-icon" style="background:#f5f3ff;color:var(--purple);">
+                <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              </div>
+              <div>
+                <div class="wiki-cat-title">Tecnologia da Informacao</div>
+              </div>
+              <div class="wiki-cat-count">7 documentos</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Guia de Configuracao VPN — Acesso Remoto</div>
+              <div class="wiki-article-tag" style="background:#eff6ff;color:#1d4ed8;">Atualizado</div>
+              <div class="wiki-article-meta" style="margin-left:10px;">Mai 2026</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Politica de Seguranca da Informacao</div>
+              <div class="wiki-article-tag" style="background:#d1fae5;color:#047857;">Essencial</div>
+              <div class="wiki-article-meta" style="margin-left:10px;">Mar 2026</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Como Solicitar Acesso a Sistemas e Bases de Dados</div>
+              <div class="wiki-article-meta">Abr 2026</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Inventario de Softwares Licenciados</div>
+              <div class="wiki-article-meta">Jan 2026</div>
+            </div>
+          </div>
+
+          <div class="wiki-card">
+            <div class="wiki-card-header">
+              <div class="wiki-cat-icon" style="background:#fffbeb;color:var(--orange);">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+              </div>
+              <div>
+                <div class="wiki-cat-title">Onboarding</div>
+              </div>
+              <div class="wiki-cat-count">5 documentos</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Checklist de Primeiro Dia — Novos Colaboradores</div>
+              <div class="wiki-article-tag" style="background:#d1fae5;color:#047857;">Essencial</div>
+              <div class="wiki-article-meta" style="margin-left:10px;">Jan 2026</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Mapa do Escritorio e Setores</div>
+              <div class="wiki-article-meta">Fev 2026</div>
+            </div>
+            <div class="wiki-article">
+              <div class="wiki-article-title">Contatos e Ramais Internos</div>
+              <div class="wiki-article-meta">Jun 2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINKS RAPIDOS -->
+    <div class="page" id="page-links">
+      <div class="page-header">
+        <h1>Links Rapidos</h1>
+        <p>Acesse os sistemas e ferramentas do dia a dia com um clique</p>
+      </div>
+
+      <div class="links-section-title">Sistemas Principais</div>
+      <div class="links-grid">
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#eff6ff;"><svg viewBox="0 0 24 24" style="stroke:var(--primary);"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+          <div><div class="link-name">ERP Corporativo</div><div class="link-desc">Gestao financeira e operacional</div></div>
+        </a>
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#f0fdf4;"><svg viewBox="0 0 24 24" style="stroke:var(--green);"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+          <div><div class="link-name">CRM</div><div class="link-desc">Gestao de clientes e oportunidades</div></div>
+        </a>
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#fffbeb;"><svg viewBox="0 0 24 24" style="stroke:var(--orange);"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+          <div><div class="link-name">Power BI</div><div class="link-desc">Dashboards e relatorios executivos</div></div>
+        </a>
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#f5f3ff;"><svg viewBox="0 0 24 24" style="stroke:var(--purple);"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div><div class="link-name">E-mail Corporativo</div><div class="link-desc">Outlook / Webmail</div></div>
+        </a>
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#eff6ff;"><svg viewBox="0 0 24 24" style="stroke:var(--primary);"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div>
+          <div><div class="link-name">Drive Corporativo</div><div class="link-desc">Arquivos e documentos compartilhados</div></div>
+        </a>
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#f0fdf4;"><svg viewBox="0 0 24 24" style="stroke:var(--green);"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
+          <div><div class="link-name">Ponto Digital</div><div class="link-desc">Registro de ponto e folha</div></div>
+        </a>
+      </div>
+
+      <div class="links-section-title">Colaboracao e Produtividade</div>
+      <div class="links-grid">
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#fffbeb;"><svg viewBox="0 0 24 24" style="stroke:var(--orange);"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+          <div><div class="link-name">Teams / Slack</div><div class="link-desc">Comunicacao interna</div></div>
+        </a>
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#eff6ff;"><svg viewBox="0 0 24 24" style="stroke:var(--primary);"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div><div class="link-name">Google Agenda</div><div class="link-desc">Calendario e reunioes</div></div>
+        </a>
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#f5f3ff;"><svg viewBox="0 0 24 24" style="stroke:var(--purple);"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+          <div><div class="link-name">Gestor de Tarefas</div><div class="link-desc">Projetos e atividades</div></div>
+        </a>
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#f0fdf4;"><svg viewBox="0 0 24 24" style="stroke:var(--green);"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87V15.13a1 1 0 01-1.447.899L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg></div>
+          <div><div class="link-name">Sala de Reuniao Virtual</div><div class="link-desc">Videoconferencia</div></div>
+        </a>
+      </div>
+
+      <div class="links-section-title">RH e Pessoal</div>
+      <div class="links-grid">
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#eff6ff;"><svg viewBox="0 0 24 24" style="stroke:var(--primary);"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div><div class="link-name">Holerite Online</div><div class="link-desc">Contracheques e comprovantes</div></div>
+        </a>
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#fffbeb;"><svg viewBox="0 0 24 24" style="stroke:var(--orange);"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+          <div><div class="link-name">Solicitacao de Ferias</div><div class="link-desc">Agendamento e aprovacao</div></div>
+        </a>
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#f0fdf4;"><svg viewBox="0 0 24 24" style="stroke:var(--green);"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+          <div><div class="link-name">Plano de Saude</div><div class="link-desc">Carteirinha e rede credenciada</div></div>
+        </a>
+        <a href="#" class="link-card">
+          <div class="link-icon" style="background:#f5f3ff;"><svg viewBox="0 0 24 24" style="stroke:var(--purple);"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
+          <div><div class="link-name">Canal de Denuncias</div><div class="link-desc">Anonimo e confidencial</div></div>
+        </a>
+      </div>
+
+      <div class="links-section-title">Contatos de Emergencia</div>
+      <div class="links-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));">
+        <div class="link-card" style="cursor:default;">
+          <div class="link-icon" style="background:#fef2f2;"><svg viewBox="0 0 24 24" style="stroke:var(--red);"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.63 19.79 19.79 0 01.07 4.22a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+          <div><div class="link-name">SAMU — 192</div><div class="link-desc">Emergencia medica</div></div>
+        </div>
+        <div class="link-card" style="cursor:default;">
+          <div class="link-icon" style="background:#fef2f2;"><svg viewBox="0 0 24 24" style="stroke:var(--red);"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.63 19.79 19.79 0 01.07 4.22a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+          <div><div class="link-name">TI — Ramal 100</div><div class="link-desc">Suporte urgente</div></div>
+        </div>
+        <div class="link-card" style="cursor:default;">
+          <div class="link-icon" style="background:#fef2f2;"><svg viewBox="0 0 24 24" style="stroke:var(--red);"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.63 19.79 19.79 0 01.07 4.22a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+          <div><div class="link-name">RH — Ramal 210</div><div class="link-desc">Urgencias de pessoal</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + name);
+  if (page) page.classList.add('active');
+  if (el) el.classList.add('active');
+  const titles = {
+    home: 'Boa tarde, Bruno',
+    feed: 'Feed de Noticias',
+    rh: 'Mensagens do RH',
+    areas: 'Areas da Empresa',
+    calendario: 'Calendario de Eventos',
+    organograma: 'Organograma',
+    chamados: 'Suporte TI',
+    dados: 'Dados',
+    treinamentos: 'Treinamentos',
+    aniversariantes: 'Aniversariantes',
+    indicadores: 'Indicadores da Empresa',
+    conhecimento: 'Base de Conhecimento',
+    links: 'Links Rapidos',
+  };
+  document.getElementById('page-title').textContent = titles[name] || '';
+}
+function showPageByName(name) {
+  const item = [...document.querySelectorAll('.nav-item')].find(n => n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + name + "'"));
+  showPage(name, item);
+}
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('icon-dark').style.display = '';
+    document.getElementById('icon-light').style.display = 'none';
+    localStorage.setItem('theme', 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('icon-dark').style.display = 'none';
+    document.getElementById('icon-light').style.display = '';
+    localStorage.setItem('theme', 'dark');
+  }
+}
+
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    const iconDark = document.getElementById('icon-dark');
+    const iconLight = document.getElementById('icon-light');
+    if (iconDark) iconDark.style.display = 'none';
+    if (iconLight) iconLight.style.display = '';
+  }
+})();
+</script>
+</body>
+</html>
