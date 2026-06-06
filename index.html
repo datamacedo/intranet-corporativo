@@ -553,6 +553,178 @@ body {
 .empty-state h3 { font-size: 15px; font-weight: 700; color: #6b7280; margin-bottom: 4px; }
 .empty-state p { font-size: 13px; }
 
+/* ── WIZARD MODAL ── */
+.wz-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.88);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s ease;
+  backdrop-filter: blur(4px);
+}
+.wz-overlay.open { opacity: 1; pointer-events: all; }
+
+.wz-modal {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 18px;
+  width: 100%; max-width: 560px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+  transform: translateY(24px) scale(0.97);
+  transition: transform .35s cubic-bezier(0.34,1.4,0.64,1);
+}
+.wz-overlay.open .wz-modal { transform: translateY(0) scale(1); }
+
+.wz-progress {
+  height: 3px; background: #1e293b;
+  display: flex; gap: 3px; padding: 0;
+}
+.wz-progress-bar {
+  height: 100%; flex: 1; background: #1e293b; border-radius: 0;
+  transition: background .4s ease;
+}
+.wz-progress-bar.done { background: #2563eb; }
+.wz-progress-bar.active { background: #2563eb; }
+
+.wz-header {
+  padding: 28px 32px 0;
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.wz-step-label {
+  font-size: 11px; font-weight: 700; color: #2563eb;
+  text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px;
+}
+.wz-title { font-size: 1.35rem; font-weight: 800; color: #f1f5f9; line-height: 1.25; }
+.wz-subtitle { font-size: 13px; color: #64748b; margin-top: 5px; }
+.wz-close {
+  width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: #1e293b; color: #64748b; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background .15s, color .15s;
+}
+.wz-close:hover { background: #334155; color: #f1f5f9; }
+.wz-close svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+
+.wz-body { padding: 24px 32px 32px; }
+
+/* Step panels */
+.wz-step { display: none; }
+.wz-step.active { display: block; animation: wzFadeIn .25s ease; }
+@keyframes wzFadeIn { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
+
+/* Option cards */
+.wz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+.wz-options.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+.wz-opt {
+  background: #1e293b; border: 2px solid #1e293b; border-radius: 12px;
+  padding: 16px 14px; cursor: pointer; text-align: center;
+  transition: border-color .15s, background .15s, transform .12s;
+  position: relative;
+}
+.wz-opt:hover { border-color: #334155; background: #263348; transform: translateY(-1px); }
+.wz-opt.selected { border-color: #2563eb; background: #1e3a5f; }
+.wz-opt.selected .wz-opt-check { opacity: 1; }
+.wz-opt-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;
+}
+.wz-opt-icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.wz-opt-label { font-size: 13px; font-weight: 700; color: #f1f5f9; line-height: 1.3; }
+.wz-opt-desc { font-size: 11px; color: #64748b; margin-top: 3px; }
+.wz-opt-check {
+  position: absolute; top: 8px; right: 8px; width: 18px; height: 18px;
+  background: #2563eb; border-radius: 50%; opacity: 0; transition: opacity .15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.wz-opt-check svg { width: 10px; height: 10px; stroke: #fff; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Priority cards */
+.wz-prio-baixa .wz-opt-icon { background: rgba(16,185,129,.12); color: #10b981; }
+.wz-prio-media .wz-opt-icon { background: rgba(245,158,11,.12); color: #f59e0b; }
+.wz-prio-alta .wz-opt-icon { background: rgba(239,68,68,.12); color: #ef4444; }
+.wz-prio-critica .wz-opt-icon { background: rgba(220,38,38,.2); color: #dc2626; }
+
+/* Form fields */
+.wz-field { margin-bottom: 16px; margin-top: 18px; }
+.wz-field label { font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .07em; display: block; margin-bottom: 7px; }
+.wz-field input, .wz-field textarea, .wz-field select {
+  width: 100%; background: #1e293b; border: 1.5px solid #334155;
+  border-radius: 9px; padding: 12px 14px; color: #f1f5f9; font-size: 14px;
+  font-family: inherit; outline: none; transition: border-color .15s;
+  resize: none;
+}
+.wz-field input:focus, .wz-field textarea:focus { border-color: #2563eb; }
+.wz-field input::placeholder, .wz-field textarea::placeholder { color: #475569; }
+
+/* Impact toggle */
+.wz-impact { display: flex; gap: 8px; margin-top: 7px; }
+.wz-impact-btn {
+  flex: 1; padding: 9px; border-radius: 8px; border: 1.5px solid #334155;
+  background: #1e293b; color: #94a3b8; font-size: 12px; font-weight: 600;
+  cursor: pointer; text-align: center; transition: all .15s;
+}
+.wz-impact-btn:hover { border-color: #475569; color: #f1f5f9; }
+.wz-impact-btn.sel { border-color: #2563eb; background: #1e3a5f; color: #93c5fd; }
+
+/* Footer */
+.wz-footer {
+  padding: 0 32px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.wz-btn-back {
+  background: none; border: 1.5px solid #334155; color: #94a3b8;
+  padding: 11px 22px; border-radius: 9px; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.wz-btn-back:hover { border-color: #475569; color: #f1f5f9; }
+.wz-btn-next {
+  background: #2563eb; color: #fff; border: none;
+  padding: 11px 28px; border-radius: 9px; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: background .15s, transform .12s;
+  display: flex; align-items: center; gap: 8px;
+}
+.wz-btn-next:hover { background: #1d4ed8; transform: translateY(-1px); }
+.wz-btn-next:disabled { background: #334155; color: #475569; cursor: not-allowed; transform: none; }
+.wz-btn-next svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Success screen */
+.wz-success {
+  text-align: center; padding: 16px 32px 36px;
+}
+.wz-success-icon {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: rgba(16,185,129,.12); border: 2px solid rgba(16,185,129,.3);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  animation: wzPop .4s cubic-bezier(0.34,1.6,0.64,1);
+}
+@keyframes wzPop { from { transform: scale(0.4); opacity:0; } to { transform: scale(1); opacity:1; } }
+.wz-success-icon svg { width: 32px; height: 32px; stroke: #10b981; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.wz-ticket-num {
+  display: inline-block; font-size: 13px; font-weight: 700;
+  background: #1e293b; color: #94a3b8; padding: 5px 16px; border-radius: 20px;
+  margin-bottom: 16px; letter-spacing: .05em;
+}
+.wz-success h2 { font-size: 1.3rem; font-weight: 800; color: #f1f5f9; margin-bottom: 8px; }
+.wz-success p { font-size: 13px; color: #64748b; line-height: 1.6; max-width: 360px; margin: 0 auto 24px; }
+.wz-sla-row {
+  display: flex; gap: 12px; justify-content: center; margin-bottom: 28px;
+}
+.wz-sla-card {
+  background: #1e293b; border-radius: 10px; padding: 12px 18px; text-align: center;
+}
+.wz-sla-label { font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
+.wz-sla-val { font-size: 15px; font-weight: 800; color: #f1f5f9; margin-top: 3px; }
+.wz-sla-val.green { color: #10b981; }
+.wz-btn-done {
+  background: #2563eb; color: #fff; border: none;
+  padding: 12px 36px; border-radius: 9px; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: background .15s;
+}
+.wz-btn-done:hover { background: #1d4ed8; }
+
 /* DIVISOR LABEL */
 .section-divider {
   font-size: 11px; font-weight: 700; color: var(--text-muted);
@@ -1725,7 +1897,7 @@ body {
           <h1>Suporte TI</h1>
           <p>Solicitacoes, incidentes e suporte tecnico</p>
         </div>
-        <button class="new-chamado-btn">
+        <button class="new-chamado-btn" onclick="openChamadoModal()">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Nova Solicitacao
         </button>
@@ -2732,6 +2904,211 @@ body {
   </div>
 </div>
 
+<!-- WIZARD MODAL -->
+<div class="wz-overlay" id="wz-overlay" onclick="wzOverlayClick(event)">
+  <div class="wz-modal" id="wz-modal">
+
+    <!-- Progress bar -->
+    <div class="wz-progress">
+      <div class="wz-progress-bar active" id="wz-p1"></div>
+      <div class="wz-progress-bar" id="wz-p2"></div>
+      <div class="wz-progress-bar" id="wz-p3"></div>
+      <div class="wz-progress-bar" id="wz-p4"></div>
+    </div>
+
+    <!-- STEP 1: Categoria -->
+    <div class="wz-step active" id="wz-step-1">
+      <div class="wz-header">
+        <div>
+          <div class="wz-step-label">Passo 1 de 3</div>
+          <div class="wz-title">Qual e o tipo do problema?</div>
+          <div class="wz-subtitle">Selecione a categoria que melhor descreve sua solicitacao</div>
+        </div>
+        <button class="wz-close" onclick="closeChamadoModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="wz-body">
+        <div class="wz-options">
+          <div class="wz-opt" onclick="wzSelect(this,'cat','hardware')">
+            <div class="wz-opt-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="wz-opt-icon" style="background:rgba(59,130,246,.12);color:#3b82f6;">
+              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div class="wz-opt-label">Hardware</div>
+            <div class="wz-opt-desc">Computador, monitor, teclado, mouse</div>
+          </div>
+          <div class="wz-opt" onclick="wzSelect(this,'cat','software')">
+            <div class="wz-opt-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="wz-opt-icon" style="background:rgba(124,58,237,.12);color:#7c3aed;">
+              <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <div class="wz-opt-label">Software</div>
+            <div class="wz-opt-desc">Sistemas, aplicativos, erros</div>
+          </div>
+          <div class="wz-opt" onclick="wzSelect(this,'cat','acesso')">
+            <div class="wz-opt-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="wz-opt-icon" style="background:rgba(245,158,11,.12);color:#f59e0b;">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <div class="wz-opt-label">Acesso e Senhas</div>
+            <div class="wz-opt-desc">Login, permissoes, VPN</div>
+          </div>
+          <div class="wz-opt" onclick="wzSelect(this,'cat','rede')">
+            <div class="wz-opt-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="wz-opt-icon" style="background:rgba(16,185,129,.12);color:#10b981;">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            </div>
+            <div class="wz-opt-label">Rede e Internet</div>
+            <div class="wz-opt-desc">Wi-Fi, lentidao, sem conexao</div>
+          </div>
+          <div class="wz-opt" onclick="wzSelect(this,'cat','impressora')">
+            <div class="wz-opt-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="wz-opt-icon" style="background:rgba(236,72,153,.12);color:#ec4899;">
+              <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            </div>
+            <div class="wz-opt-label">Impressora</div>
+            <div class="wz-opt-desc">Nao imprime, papel preso, drivers</div>
+          </div>
+          <div class="wz-opt" onclick="wzSelect(this,'cat','outro')">
+            <div class="wz-opt-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="wz-opt-icon" style="background:rgba(100,116,139,.12);color:#64748b;">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="wz-opt-label">Outro</div>
+            <div class="wz-opt-desc">Solicitacao nao listada</div>
+          </div>
+        </div>
+      </div>
+      <div class="wz-footer">
+        <div></div>
+        <button class="wz-btn-next" id="wz-next-1" onclick="wzGoTo(2)" disabled>
+          Continuar <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Prioridade -->
+    <div class="wz-step" id="wz-step-2">
+      <div class="wz-header">
+        <div>
+          <div class="wz-step-label">Passo 2 de 3</div>
+          <div class="wz-title">Qual e a urgencia?</div>
+          <div class="wz-subtitle">Isso define o tempo de resposta do suporte</div>
+        </div>
+        <button class="wz-close" onclick="closeChamadoModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="wz-body">
+        <div class="wz-options cols3" style="grid-template-columns:1fr 1fr;">
+          <div class="wz-opt wz-prio-baixa" onclick="wzSelect(this,'prio','Baixa')">
+            <div class="wz-opt-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="wz-opt-icon">
+              <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+            </div>
+            <div class="wz-opt-label">Baixa</div>
+            <div class="wz-opt-desc">Nao impede o trabalho<br>Resposta: ate 24h</div>
+          </div>
+          <div class="wz-opt wz-prio-media" onclick="wzSelect(this,'prio','Media')">
+            <div class="wz-opt-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="wz-opt-icon">
+              <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <div class="wz-opt-label">Media</div>
+            <div class="wz-opt-desc">Dificulta o trabalho<br>Resposta: ate 8h</div>
+          </div>
+          <div class="wz-opt wz-prio-alta" onclick="wzSelect(this,'prio','Alta')">
+            <div class="wz-opt-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="wz-opt-icon">
+              <svg viewBox="0 0 24 24"><polyline points="18 9 12 15 6 9"/></svg>
+            </div>
+            <div class="wz-opt-label">Alta</div>
+            <div class="wz-opt-desc">Impede completamente<br>Resposta: ate 2h</div>
+          </div>
+          <div class="wz-opt wz-prio-critica" onclick="wzSelect(this,'prio','Critica')">
+            <div class="wz-opt-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="wz-opt-icon">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="wz-opt-label">Critica</div>
+            <div class="wz-opt-desc">Sistema down / toda equipe<br>Resposta: imediata</div>
+          </div>
+        </div>
+      </div>
+      <div class="wz-footer">
+        <button class="wz-btn-back" onclick="wzGoTo(1)">Voltar</button>
+        <button class="wz-btn-next" id="wz-next-2" onclick="wzGoTo(3)" disabled>
+          Continuar <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Detalhes -->
+    <div class="wz-step" id="wz-step-3">
+      <div class="wz-header">
+        <div>
+          <div class="wz-step-label">Passo 3 de 3</div>
+          <div class="wz-title">Descreva o problema</div>
+          <div class="wz-subtitle">Quanto mais detalhe, mais rapida a solucao</div>
+        </div>
+        <button class="wz-close" onclick="closeChamadoModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="wz-body" style="padding-bottom:8px;">
+        <div class="wz-field">
+          <label>Titulo do problema</label>
+          <input type="text" id="wz-titulo" placeholder="Ex: VPN nao conecta apos atualizar o Windows" oninput="wzCheckStep3()">
+        </div>
+        <div class="wz-field">
+          <label>Descricao detalhada</label>
+          <textarea id="wz-descricao" rows="4" placeholder="Descreva o que aconteceu, quando comeou e o que ja tentou fazer..." oninput="wzCheckStep3()"></textarea>
+        </div>
+        <div class="wz-field">
+          <label>Quem e afetado?</label>
+          <div class="wz-impact">
+            <div class="wz-impact-btn" onclick="wzImpact(this,'so_eu')">So eu</div>
+            <div class="wz-impact-btn" onclick="wzImpact(this,'minha_equipe')">Minha equipe</div>
+            <div class="wz-impact-btn" onclick="wzImpact(this,'toda_empresa')">Toda a empresa</div>
+          </div>
+        </div>
+      </div>
+      <div class="wz-footer">
+        <button class="wz-btn-back" onclick="wzGoTo(2)">Voltar</button>
+        <button class="wz-btn-next" id="wz-next-3" onclick="wzSubmit()" disabled>
+          Abrir Chamado <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Sucesso -->
+    <div class="wz-step" id="wz-step-4">
+      <div style="padding:28px 32px 0;display:flex;justify-content:flex-end;">
+        <button class="wz-close" onclick="closeChamadoModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="wz-success">
+        <div class="wz-success-icon">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="wz-ticket-num" id="wz-ticket-num">#0043</div>
+        <h2>Chamado aberto com sucesso!</h2>
+        <p>Seu chamado foi registrado e a equipe de TI ja foi notificada. Voce pode acompanhar o status na lista de chamados.</p>
+        <div class="wz-sla-row">
+          <div class="wz-sla-card">
+            <div class="wz-sla-label">Prioridade</div>
+            <div class="wz-sla-val" id="wz-sla-prio">Alta</div>
+          </div>
+          <div class="wz-sla-card">
+            <div class="wz-sla-label">Tempo de resposta</div>
+            <div class="wz-sla-val green" id="wz-sla-tempo">ate 2h</div>
+          </div>
+          <div class="wz-sla-card">
+            <div class="wz-sla-label">Status</div>
+            <div class="wz-sla-val" style="color:#3b82f6;">Aberto</div>
+          </div>
+        </div>
+        <button class="wz-btn-done" onclick="closeChamadoModal()">Ver meus chamados</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
 function showPage(name, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2766,6 +3143,79 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     this.classList.add('active');
   });
 });
+
+/* ── WIZARD CHAMADO ── */
+const wzData = { cat: null, prio: null, impacto: null };
+const slaMap = { Baixa: 'ate 24h', Media: 'ate 8h', Alta: 'ate 2h', Critica: 'imediata' };
+
+function openChamadoModal() {
+  wzReset();
+  document.getElementById('wz-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeChamadoModal() {
+  document.getElementById('wz-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function wzOverlayClick(e) {
+  if (e.target === document.getElementById('wz-overlay')) closeChamadoModal();
+}
+function wzReset() {
+  wzData.cat = null; wzData.prio = null; wzData.impacto = null;
+  document.querySelectorAll('.wz-opt').forEach(o => o.classList.remove('selected'));
+  document.querySelectorAll('.wz-impact-btn').forEach(b => b.classList.remove('sel'));
+  document.getElementById('wz-titulo').value = '';
+  document.getElementById('wz-descricao').value = '';
+  document.getElementById('wz-next-1').disabled = true;
+  document.getElementById('wz-next-2').disabled = true;
+  document.getElementById('wz-next-3').disabled = true;
+  wzGoTo(1, true);
+}
+function wzGoTo(step, skipAnim) {
+  document.querySelectorAll('.wz-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('wz-step-' + step).classList.add('active');
+  [1,2,3,4].forEach(i => {
+    const bar = document.getElementById('wz-p' + i);
+    bar.classList.remove('done','active');
+    if (i < step) bar.classList.add('done');
+    else if (i === step) bar.classList.add('active');
+  });
+}
+function wzSelect(el, field, val) {
+  const group = el.parentElement;
+  group.querySelectorAll('.wz-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  wzData[field] = val;
+  if (field === 'cat') document.getElementById('wz-next-1').disabled = false;
+  if (field === 'prio') document.getElementById('wz-next-2').disabled = false;
+}
+function wzImpact(el, val) {
+  document.querySelectorAll('.wz-impact-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+  wzData.impacto = val;
+  wzCheckStep3();
+}
+function wzCheckStep3() {
+  const titulo = document.getElementById('wz-titulo').value.trim();
+  const desc = document.getElementById('wz-descricao').value.trim();
+  document.getElementById('wz-next-3').disabled = !(titulo && desc && wzData.impacto);
+}
+function wzSubmit() {
+  const tickets = JSON.parse(localStorage.getItem('ti_tickets') || '[]');
+  const num = '#' + String(43 + tickets.length).padStart(4,'0');
+  const ticket = {
+    num, cat: wzData.cat, prio: wzData.prio, impacto: wzData.impacto,
+    titulo: document.getElementById('wz-titulo').value.trim(),
+    descricao: document.getElementById('wz-descricao').value.trim(),
+    status: 'Aberto', data: new Date().toLocaleDateString('pt-BR')
+  };
+  tickets.push(ticket);
+  localStorage.setItem('ti_tickets', JSON.stringify(tickets));
+  document.getElementById('wz-ticket-num').textContent = num;
+  document.getElementById('wz-sla-prio').textContent = wzData.prio;
+  document.getElementById('wz-sla-tempo').textContent = slaMap[wzData.prio] || '-';
+  wzGoTo(4);
+}
 
 function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
